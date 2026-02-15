@@ -2,9 +2,12 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+
 // REGISTER USER
 exports.register = async (req, res) => {
   try {
+    console.log("REGISTER HIT:", req.body);
+
     const { name, email, password } = req.body;
 
     // Check if user exists
