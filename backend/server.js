@@ -5,6 +5,11 @@ require("dotenv").config();
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 
+const itemRoutes = require("./routes/itemRoutes");
+
+const auctionRoutes = require("./routes/auctionRoutes");
+const bidRoutes = require("./routes/bidRoutes");
+
 const app = express();
 
 // Connect to DB
@@ -21,6 +26,11 @@ app.use((req, res, next) => {
 
 // Routes
 app.use("/api/auth", authRoutes);
+
+app.use("/api/items", itemRoutes);
+
+app.use("/api/auctions", auctionRoutes);
+app.use("/api/bids", bidRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
