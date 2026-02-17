@@ -1,7 +1,11 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./register.css";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
+
 export default function RegisterPage() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -13,6 +17,9 @@ export default function RegisterPage() {
     year: "",
   });
 
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -20,44 +27,104 @@ export default function RegisterPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    // Basic authentication / validation
-    if (
-      !form.name ||
-      !form.email ||
-      !form.mobile ||
-      !form.password ||
-      !form.confirmPassword ||
-      !form.stream ||
-      !form.branch ||
-      !form.year
-    ) {
-      setError("Please fill all fields.");
+    if (!otpSent) {
+      if (
+        !form.name ||
+        !form.email ||
+        !form.mobile ||
+        !form.password ||
+        !form.confirmPassword ||
+        !form.stream ||
+        !form.branch ||
+        !form.year
+      ) {
+        setError("Please fill all fields.");
+        return;
+      }
+
+      if (form.mobile.length !== 10 || isNaN(form.mobile)) {
+        setError("Enter a valid 10-digit mobile number.");
+        return;
+      }
+
+      if (!form.email.toLowerCase().endsWith("@iitrpr.ac.in")) {
+        setError("Only @iitrpr.ac.in email addresses are allowed.");
+        return;
+      }
+
+      if (form.password.length < 6) {
+        setError("Password must be at least 6 characters.");
+        return;
+      }
+
+      if (form.password !== form.confirmPassword) {
+        setError("Passwords do not match.");
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_BASE_URL}/auth/register/request-otp`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            password: form.password,
+          }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          setError(data.message || "Could not send OTP");
+          return;
+        }
+
+        setOtpSent(true);
+        setSuccess("OTP sent to your college email. Enter it below to complete registration.");
+      } catch (err) {
+        setError("Network error while sending OTP");
+      } finally {
+        setLoading(false);
+      }
+
       return;
     }
 
-    if (form.mobile.length !== 10 || isNaN(form.mobile)) {
-      setError("Enter a valid 10-digit mobile number.");
+    if (!otp.trim()) {
+      setError("Please enter OTP.");
       return;
     }
 
-    if (form.password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/auth/register/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: form.email,
+          otp: otp.trim(),
+        }),
+      });
 
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.message || "OTP verification failed");
+        return;
+      }
 
-    // Simulated success authentication
-    setSuccess("Registration successful! (Frontend validation passed)");
-    console.log("Registered User:", form);
+      setSuccess("Registration successful. Redirecting to login...");
+      setTimeout(() => navigate("/"), 1000);
+    } catch (err) {
+      setError("Network error while verifying OTP");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -91,6 +158,7 @@ export default function RegisterPage() {
               placeholder="Full Name"
               value={form.name}
               onChange={handleChange}
+              disabled={otpSent}
               className="form-input with-icon"
             />
           </div>
@@ -107,6 +175,7 @@ export default function RegisterPage() {
               placeholder="Email Address"
               value={form.email}
               onChange={handleChange}
+              disabled={otpSent}
               className="form-input with-icon"
             />
           </div>
@@ -123,6 +192,7 @@ export default function RegisterPage() {
               placeholder="Mobile Number"
               value={form.mobile}
               onChange={handleChange}
+              disabled={otpSent}
               className="form-input with-icon"
             />
           </div>
@@ -133,6 +203,7 @@ export default function RegisterPage() {
                 name="stream"
                 value={form.stream}
                 onChange={handleChange}
+                disabled={otpSent}
                 className="form-select"
               >
                 <option value="">Stream</option>
@@ -147,6 +218,7 @@ export default function RegisterPage() {
                 name="year"
                 value={form.year}
                 onChange={handleChange}
+                disabled={otpSent}
                 className="form-select"
               >
                 <option value="">Year</option>
@@ -170,6 +242,7 @@ export default function RegisterPage() {
               placeholder="Branch (e.g. CSE)"
               value={form.branch}
               onChange={handleChange}
+              disabled={otpSent}
               className="form-input with-icon"
             />
           </div>
@@ -186,6 +259,7 @@ export default function RegisterPage() {
               placeholder="Password"
               value={form.password}
               onChange={handleChange}
+              disabled={otpSent}
               className="form-input with-icon"
             />
           </div>
@@ -202,20 +276,35 @@ export default function RegisterPage() {
               placeholder="Confirm Password"
               value={form.confirmPassword}
               onChange={handleChange}
+              disabled={otpSent}
               className="form-input with-icon"
             />
           </div>
 
+          {otpSent && (
+            <div className="form-item">
+              <input
+                type="text"
+                name="otp"
+                placeholder="Enter 6-digit OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                className="form-input"
+              />
+            </div>
+          )}
+
           <button
             type="submit"
+            disabled={loading}
             className="auth-button"
           >
-            Register
+            {loading ? "Please wait..." : otpSent ? "Verify OTP" : "Send OTP"}
           </button>
         </form>
 
         <p className="auth-footer">
-          Already have an account? <a href="/login" className="auth-link">Login</a>
+          Already have an account? <Link to="/" className="auth-link">Login</Link>
         </p>
       </div>
     </div>

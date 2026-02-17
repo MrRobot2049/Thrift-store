@@ -2,18 +2,44 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./login.css";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login:", email, password);
+    setError("");
 
-    // Temporary success redirect
-    alert("Login successful (demo)");
-    navigate("/"); // later change to dashboard
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.message || "Login failed");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      navigate("/dashboard");
+    } catch (err) {
+      setError("Network error while logging in");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -21,6 +47,12 @@ export default function LoginPage() {
       <div className="auth-card">
         <h2 className="auth-title">Welcome Back</h2>
         <p className="auth-subtitle">Login to your account</p>
+
+        {error && (
+          <div className="auth-alert error">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-item">
@@ -55,7 +87,9 @@ export default function LoginPage() {
             />
           </div>
 
-          <button type="submit" className="auth-button">Login</button>
+          <button type="submit" disabled={loading} className="auth-button">
+            {loading ? "Please wait..." : "Login"}
+          </button>
         </form>
 
         <p className="auth-footer">
