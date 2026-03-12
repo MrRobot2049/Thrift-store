@@ -1,6 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./login";
 import RegisterPage from "./RegisterPage";
+import Home from "./Home";
+import UploadItem from "./UploadItem";
+import ItemDetail from "./ItemDetail";
+import AuctionDetail from "./AuctionDetail";
+import Profile from "./Profile";
+import SellerDashboard from "./SellerDashboard";
 
 function Dashboard() {
   const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -27,6 +33,12 @@ function App() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/seller-dashboard" element={<SellerDashboard />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/upload" element={<UploadItem />} />
+        <Route path="/items/:id" element={<ItemDetail />} />
+        <Route path="/auctions/:id" element={<AuctionDetail />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </Router>
   );

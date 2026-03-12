@@ -1,0 +1,389 @@
+.item-detail-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 1rem;
+  font-family: sans-serif;
+}
+
+.item-detail-wrapper {
+  max-width: 1200px;
+  margin: 2rem auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Image Section */
+.image-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.image-gallery-container {
+  position: sticky;
+  top: 20px;
+}
+
+.main-image-wrapper {
+  width: 100%;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.main-image {
+  width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: cover;
+  display: block;
+}
+
+.thumbnails-wrapper {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 0.5rem;
+  justify-content: flex-start;
+}
+
+.thumbnail {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid #ddd;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.thumbnail:hover {
+  border-color: #667eea;
+  transform: scale(1.05);
+}
+
+.thumbnail.active {
+  border-color: #667eea;
+  box-shadow: 0 0 8px rgba(102, 126, 234, 0.5);
+}
+
+/* Details Section */
+.details-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.item-title {
+  margin: 0;
+  font-size: 2rem;
+  color: #333;
+  line-height: 1.2;
+}
+
+.item-category {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.seller-info {
+  margin: 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.seller-info strong {
+  color: #333;
+  font-weight: 600;
+}
+
+/* Price Info Box */
+.price-info-box {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #f0f4f8 100%);
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.price-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-item .label {
+  font-size: 0.75rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.price-item .value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #667eea;
+}
+
+/* Description Box */
+.item-description-box {
+  padding: 1.5rem;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+.item-description-box h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.item-description-box p {
+  margin: 0;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* Bids History */
+.bids-history-section {
+  padding: 1.5rem;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+.bids-history-section h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.no-bids {
+  margin: 0;
+  color: #999;
+  font-style: italic;
+}
+
+.bid-privacy-notice {
+  margin: 1rem 0 0 0;
+  padding: 0.75rem;
+  background: #e3f2fd;
+  border-left: 4px solid #2196f3;
+  color: #1976d2;
+  font-size: 0.9rem;
+  border-radius: 4px;
+}
+
+.bids-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bid-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+.bid-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #667eea;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.bid-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex-grow: 1;
+}
+
+.bid-bidder {
+  color: #333;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.bid-time {
+  color: #999;
+  font-size: 0.8rem;
+}
+
+.bid-amount {
+  color: #667eea;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+/* Bid Form */
+.bid-form-section {
+  padding: 1.5rem;
+  background: white;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+}
+
+.bid-form-section h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.bid-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  color: #333;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.form-group input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.bid-button {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bid-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.bid-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Alerts */
+.alert {
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.alert.error {
+  background-color: #fee;
+  color: #c33;
+  border: 1px solid #fcc;
+}
+
+.alert.success {
+  background-color: #efe;
+  color: #3c3;
+  border: 1px solid #cfc;
+}
+
+/* Info Boxes */
+.info-box {
+  padding: 1rem;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.info-box.warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+}
+
+.info-box.ended {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .item-detail-wrapper {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .item-title {
+    font-size: 1.5rem;
+  }
+
+  .image-gallery-container {
+    position: relative;
+    top: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .item-detail-wrapper {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .item-title {
+    font-size: 1.25rem;
+  }
+
+  .price-info-box {
+    grid-template-columns: 1fr;
+  }
+
+  .main-image {
+    max-height: 300px;
+  }
+
+  .thumbnail {
+    width: 60px;
+    height: 60px;
+  }
+}

@@ -34,7 +34,7 @@ export default function LoginPage() {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
-      navigate("/dashboard");
+      navigate("/home");
     } catch (err) {
       setError("Network error while logging in");
     } finally {

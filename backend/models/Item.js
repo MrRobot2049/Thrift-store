@@ -13,32 +13,35 @@ const itemSchema = new mongoose.Schema(
       required: true,
     },
 
-    price: {
-      type: Number,
-      required: function () {
-        return this.type === "fixed";
-      },
-    },
-
     category: {
       type: String,
       required: true,
     },
 
     image: {
-      type: String, // will store Cloudinary URL later
+      type: String, // Cloudinary URL
       required: true,
+    },
+
+    images: {
+      type : [String],
+      default: [],
+    },
+
+    askingPrice: {
+      type: Number,
+      required: true,
+    },
+
+    biddingDuration: {
+      type: Number, // in hours
+      required: true,
+      default: 24,
     },
 
     seller: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-    },
-
-    type: {
-      type: String,
-      enum: ["fixed", "auction"],
       required: true,
     },
 
