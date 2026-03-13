@@ -1,0 +1,414 @@
+/* Base & Backdrop */
+.profile-page-wrapper {
+  background-color: #121212;
+  min-height: 100vh;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  padding-bottom: 4rem;
+  /* Geometric Grid Pattern Background */
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+/* Luminous Header Backsplash */
+.luminous-header-backsplash {
+  background: linear-gradient(135deg, #ffffff 0%, #e0e5ec 100%);
+  color: #1a1a1a;
+  padding-bottom: 5rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 1;
+}
+
+/* Override NavBar elements inside the luminous header to be dark */
+.luminous-header-backsplash .navbar {
+  /* Requires the NavBar to be transparent or aware of the dark parent if needed */
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.header-tight {
+  padding-top: 1.5rem;
+}
+
+.overlap-container {
+  margin-top: -3.5rem; /* Pulls ID card over the edge */
+  position: relative;
+  z-index: 2;
+}
+
+/* Typography */
+.profile-page-wrapper h1, 
+.profile-page-wrapper h2, 
+.section-heading {
+  font-family: 'Playfair Display', serif;
+  color: #ffffff;
+  margin: 0;
+  font-weight: 600;
+}
+
+.luminous-header-backsplash .profile-title {
+  font-size: 2.2rem;
+  color: #222222; /* Dark text on white background */
+  text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+  margin-bottom: 0;
+}
+
+.section-heading {
+  color: #e6e6e6;
+  font-size: 1.4rem;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.5px;
+}
+
+/* ID Card */
+.profile-id-card {
+  border: 1px solid rgba(0, 229, 255, 0.4); /* Teal glow ring */
+  border-radius: 8px;
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  background-color: #1e1e1e;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 229, 255, 0.1);
+  margin-bottom: 3.5rem;
+  width: fit-content;
+  position: relative;
+  backdrop-filter: blur(8px);
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #00E5FF; /* Glowing Teal */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #2a2a2a, #4a4a4a);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.4), inset 0 0 10px rgba(0,0,0,0.5);
+  flex-shrink: 0;
+}
+
+.profile-avatar svg {
+  width: 45px;
+  height: 45px;
+  color: #ffffff;
+  opacity: 0.8;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.info-label {
+  color: #a0a0a0;
+  font-size: 1.05rem;
+}
+
+.info-value-name {
+  color: #ffffff;
+  font-weight: 600;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.5px;
+}
+
+.info-value-email {
+  color: #00E5FF; /* Bright glowing teal */
+  font-weight: 400;
+  font-size: 1.05rem;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+}
+
+/* Layout Grid */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+/* Left Column: Aesthetic Tabs */
+.tabs-header {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #333333; /* Continuous line */
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: #888888;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1rem;
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.tab-btn::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: transparent;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.tab-btn.active {
+  color: #ffffff;
+}
+
+.tab-btn.active::after {
+  background-color: #ffffff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+.left-section .tab-content {
+  background-color: #171717; /* Dark vault */
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 1.5rem;
+  min-height: 450px;
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+}
+
+/* Image Cards Grid */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1.5rem;
+}
+
+.item-card {
+  background-color: #1e1e1e;
+  border: 1px solid #333333;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.item-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.8), 0 0 15px rgba(0, 229, 255, 0.15);
+  border-color: rgba(0, 229, 255, 0.4); /* Hover outline teal */
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  color: #ffffff;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+
+.badge-available {
+  border: 1px solid rgba(0, 229, 255, 0.6);
+  color: #00E5FF;
+  background-color: rgba(0, 229, 255, 0.05);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+}
+
+.badge-live {
+  border: 1px solid rgba(255, 82, 82, 0.6);
+  color: #ff5252;
+  background-color: rgba(255, 82, 82, 0.05);
+  box-shadow: 0 0 12px rgba(255, 82, 82, 0.2);
+}
+
+.badge-ended {
+  border: 1px solid rgba(100, 100, 100, 0.6);
+  color: #a0a0a0;
+  background-color: rgba(100, 100, 100, 0.05);
+}
+
+.card-image-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  background-color: #000;
+  margin: 0 auto;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.item-card:hover .card-image {
+  transform: scale(1.08); /* slight zoom on hover */
+}
+
+.profile-card-gap {
+  margin-top: 0.5rem;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.card-bid {
+  color: #888888;
+  font-size: 0.95rem;
+}
+
+.card-bid-val {
+  color: #FFD700; /* vibrant gold for active listing prices */
+  font-weight: 700;
+  font-size: 1.4rem;
+  margin-left: 0.4rem;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
+/* Right Column: Won Card */
+.won-card {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #1e1e1e, #151515);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  gap: 1.5rem;
+  margin-bottom: 3.5rem;
+  text-decoration: none;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+}
+
+.won-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(255, 215, 0, 0.15);
+  border-color: rgba(255, 215, 0, 0.5);
+}
+
+.won-img-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: #000;
+  border: 1px solid #333;
+}
+
+.won-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.won-text {
+  color: #FFD700; /* Glowing Neon Gold */
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Playfair Display', serif;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+  flex-grow: 1;
+}
+
+.won-score-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.won-score-numbers {
+  font-family: 'Inter', monospace;
+  font-size: 0.75rem;
+  color: #888;
+  line-height: 1.2;
+  background: #111;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+}
+
+.won-trophy {
+  font-size: 2.8rem;
+  filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4));
+}
+
+/* Bids List */
+.bids-container {
+  background-color: #171717; /* Matches Left content vault */
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.bid-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid #2a2a2a;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.bid-row:hover {
+  background-color: rgba(0, 229, 255, 0.03); /* slight teal hover */
+  padding-left: 0.5rem; /* slight indent on hover */
+  border-bottom-color: rgba(0, 229, 255, 0.2);
+}
+
+.bid-row:last-child {
+  border-bottom: none;
+}
+
+.bid-date {
+  color: #777777;
+  font-size: 0.95rem;
+}
+
+.bid-amount {
+  color: #00E5FF; /* Glowing Teal */
+  font-family: 'Inter', monospace;
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+}
