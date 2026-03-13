@@ -4,6 +4,7 @@ const {
   login,
   requestOtp,
   verifyOtp,
+  logout,
 } = require("../controllers/authController");
 
 const router = express.Router();
@@ -15,5 +16,8 @@ router.post("/register/verify-otp", verifyOtp);
 
 // Login
 router.post("/login", login);
+
+// Logout
+router.post("/logout", logout);
 
 module.exports = router;

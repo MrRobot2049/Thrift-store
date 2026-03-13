@@ -41,14 +41,18 @@ export default function ItemDetail() {
     const fetchAuctionAndBids = async () => {
       try {
         // Try to fetch auction for this item
-        const auctionRes = await fetch(`${API_BASE_URL}/auctions?itemId=${id}`);
+        const auctionRes = await fetch(`${API_BASE_URL}/auctions?itemId=${id}`, {
+          credentials: "include",
+        });
         if (auctionRes.ok) {
           const auctionsData = await auctionRes.json();
           if (Array.isArray(auctionsData) && auctionsData.length > 0) {
             setAuction(auctionsData[0]);
             
             // Fetch bids for this auction
-            const bidsRes = await fetch(`${API_BASE_URL}/bids/auction/${auctionsData[0]._id}`);
+            const bidsRes = await fetch(`${API_BASE_URL}/bids/auction/${auctionsData[0]._id}`, {
+              credentials: "include",
+            });
             if (bidsRes.ok) {
               const bidsData = await bidsRes.json();
               setBids(Array.isArray(bidsData) ? bidsData : []);
@@ -133,6 +137,7 @@ export default function ItemDetail() {
         );
         const auctionRes = await fetch(`${API_BASE_URL}/auctions`, {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
             Authorization: token,
@@ -156,6 +161,7 @@ export default function ItemDetail() {
       // Place the bid
       const bidRes = await fetch(`${API_BASE_URL}/bids`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
           Authorization: token,
@@ -175,13 +181,17 @@ export default function ItemDetail() {
       setBidAmount("");
       
       // Refresh auction and bids
-      const updatedAuctionRes = await fetch(`${API_BASE_URL}/auctions/${auctionId}`);
+      const updatedAuctionRes = await fetch(`${API_BASE_URL}/auctions/${auctionId}`, {
+        credentials: "include",
+      });
       if (updatedAuctionRes.ok) {
         const updatedAuction = await updatedAuctionRes.json();
         setAuction(updatedAuction);
       }
 
-      const updatedBidsRes = await fetch(`${API_BASE_URL}/bids/auction/${auctionId}`);
+      const updatedBidsRes = await fetch(`${API_BASE_URL}/bids/auction/${auctionId}`, {
+        credentials: "include",
+      });
       if (updatedBidsRes.ok) {
         const updatedBids = await updatedBidsRes.json();
         setBids(Array.isArray(updatedBids) ? updatedBids : []);

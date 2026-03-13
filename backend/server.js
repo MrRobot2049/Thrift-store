@@ -1,7 +1,8 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-
+const session = require("express-session");
+const { MongoStore } = require("connect-mongo");
 
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
@@ -18,8 +19,57 @@ const app = express();
 // Connect to DB
 connectDB();
 
-// Middleware
-app.use(cors());
+const normalizeOrigin = (origin = "") => origin.replace(/\/$/, "");
+const defaultDevOrigins = [
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+];
+const allowedOrigins = new Set(
+  [...defaultDevOrigins, process.env.FRONTEND_URL]
+    .filter(Boolean)
+    .map(normalizeOrigin)
+);
+
+// CORS (needed for cookies from frontend)
+const corsOptions = {
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g., curl, server-to-server)
+    if (!origin) return callback(null, true);
+
+    const normalizedOrigin = normalizeOrigin(origin);
+    if (allowedOrigins.has(normalizedOrigin)) {
+      return callback(null, normalizedOrigin);
+    }
+
+    callback(new Error("Not allowed by CORS"));
+  },
+  optionsSuccessStatus: 204,
+};
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
+
+// Session configuration (stored in MongoDB)
+app.use(session({
+  secret: process.env.SESSION_SECRET || "your-secret-key",
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    collectionName: "sessions",
+  }),
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 1000, // 1 hour
+  },
+}));
+
 app.use(express.json());
 app.use((req, res, next) => {
   console.log("REQUEST:", req.method, req.url);

@@ -32,6 +32,7 @@ export default function SellerDashboard() {
 
         // Fetch all items sold by current user
         const itemsRes = await fetch(`${API_BASE_URL}/items/mine`, {
+          credentials: "include",
           headers: { Authorization: token },
         });
 
@@ -47,7 +48,8 @@ export default function SellerDashboard() {
           try {
             // Fetch auction for this item
             const auctionRes = await fetch(
-              `${API_BASE_URL}/auctions?itemId=${item._id}`
+              `${API_BASE_URL}/auctions?itemId=${item._id}`,
+              { credentials: "include" }
             );
             if (auctionRes.ok) {
               const auctionsData = await auctionRes.json();
@@ -57,7 +59,8 @@ export default function SellerDashboard() {
 
                 // Fetch bids for this auction
                 const bidsRes = await fetch(
-                  `${API_BASE_URL}/bids/auction/${auction._id}`
+                  `${API_BASE_URL}/bids/auction/${auction._id}`,
+                  { credentials: "include" }
                 );
                 if (bidsRes.ok) {
                   const bidsData = await bidsRes.json();

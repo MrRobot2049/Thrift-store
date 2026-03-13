@@ -6,7 +6,16 @@ export default function NavBar() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await fetch("http://localhost:5000/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      // ignore network errors
+    }
+
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/");

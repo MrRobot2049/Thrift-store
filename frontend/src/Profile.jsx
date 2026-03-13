@@ -16,6 +16,7 @@ export default function Profile() {
     const fetchProfile = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/users/me`, {
+          credentials: "include",
           headers: { Authorization: token },
         });
         if (!res.ok) throw new Error("Failed to fetch profile");

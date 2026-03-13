@@ -164,7 +164,10 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Create token
+    // Create session
+    req.session.userId = user._id;
+
+    // Keep returning token for backward compatibility
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
@@ -172,12 +175,29 @@ exports.login = async (req, res) => {
     );
 
     res.json({
+      message: "Login successful",
       token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
       },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// LOGOUT USER
+exports.logout = async (req, res) => {
+  try {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Could not log out" });
+      }
+      res.clearCookie("connect.sid");
+      res.json({ message: "Logout successful" });
     });
   } catch (error) {
     console.error(error);
