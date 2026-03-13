@@ -1,4 +1,5 @@
 const Item = require("../models/Item");
+const Auction = require("../models/Auction");
 
 // CREATE ITEM (Auction only)
 exports.createItem = async (req, res) => {
@@ -38,8 +39,21 @@ exports.createItem = async (req, res) => {
 // GET ALL ITEMS
 exports.getAllItems = async (req, res) => {
   try {
-    const items = await Item.find()
-      .populate("seller", "name email");
+    // Find all auctions that are either inactive or have ended
+    const endedAuctions = await Auction.find({
+      $or: [
+        { isActive: false },
+        { endTime: { $lt: new Date() } }
+      ]
+    }).select('item');
+
+    // Get item IDs that have ended auctions
+    const endedItemIds = endedAuctions.map(auction => auction.item);
+
+    // Find items that don't have ended auctions
+    const items = await Item.find({
+      _id: { $nin: endedItemIds }
+    }).populate("seller", "name email");
 
     res.json(items);
   } catch (err) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
 import "./itemDetail.css";
 
@@ -19,6 +19,16 @@ export default function ItemDetail() {
   const [timeLeft, setTimeLeft] = useState("");
 
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+
+  const goBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/home");
+    }
+  };
+
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   // Fetch item details
@@ -220,6 +230,21 @@ export default function ItemDetail() {
   return (
     <div className="item-detail-container">
       <NavBar />
+      <div className="back-button-container" style={{ padding: "1rem" }}>
+        <button
+          className="back-button"
+          onClick={goBack}
+          style={{
+            padding: "0.5rem 1rem",
+            borderRadius: "6px",
+            border: "1px solid #ccc",
+            background: "white",
+            cursor: "pointer",
+          }}
+        >
+          ← Back
+        </button>
+      </div>
 
       <div className="item-detail-wrapper">
         {/* Image Section */}

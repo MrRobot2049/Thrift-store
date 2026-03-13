@@ -63,7 +63,11 @@ export default function Home() {
       ) : (
         <div className="items-grid">
           {items.map((item) => (
-            <Link to={`/items/${item._id}`} key={item._id} className="item-card-link">
+            <Link
+              to={`/items/${item._id}`}
+              key={item._id}
+              className="item-card-link"
+            >
               <div className="item-card">
                 {item.image && (
                   <div className="item-image-container">

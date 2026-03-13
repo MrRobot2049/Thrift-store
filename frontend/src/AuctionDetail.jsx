@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
 import "./auctionDetail.css";
 
@@ -15,6 +15,15 @@ export default function AuctionDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
 
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+
+  const goBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/home");
+    }
+  };
 
   const fetchAuction = async () => {
     try {
@@ -77,6 +86,20 @@ export default function AuctionDetail() {
   return (
     <div style={{ fontFamily: "sans-serif" }}>
       <NavBar />
+      <div style={{ padding: "1rem" }}>
+        <button
+          onClick={goBack}
+          style={{
+            padding: "0.5rem 1rem",
+            borderRadius: "6px",
+            border: "1px solid #ccc",
+            background: "white",
+            cursor: "pointer",
+          }}
+        >
+          ← Back
+        </button>
+      </div>
       <h2 style={{ padding: "1rem" }}>{auction.item?.title}</h2>
       
       {/* Image Gallery Section */}

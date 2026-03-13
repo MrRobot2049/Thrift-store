@@ -118,7 +118,11 @@ export default function Profile() {
                 <div className="cards-grid">
                   {itemsListed.length === 0 ? <p style={{ color: '#888' }}>No items listed yet.</p> : null}
                   {itemsListed.map(it => (
-                    <Link to={`/items/${it._id}`} key={it._id} className="item-card">
+                    <Link
+                      to={`/items/${it._id}`}
+                      key={it._id}
+                      className="item-card"
+                    >
                       <div className="card-header">
                         <span className="card-title" title={it.title}>{it.title}</span>
                         <span className="badge badge-available">
@@ -138,7 +142,11 @@ export default function Profile() {
                 <div className="cards-grid">
                   {auctionsCreated.length === 0 ? <p style={{ color: '#888' }}>No auctions created yet.</p> : null}
                   {auctionsCreated.map(au => (
-                    <Link to={`/auctions/${au._id}`} key={au._id} className="item-card">
+                    <Link
+                      to={`/auctions/${au._id}`}
+                      key={au._id}
+                      className="item-card"
+                    >
                       <div className="card-header">
                         <span className="card-title" title={au.item?.title}>{au.item?.title}</span>
                         <span className={`badge ${au.isActive ? 'badge-live' : 'badge-ended'}`}>
@@ -187,7 +195,11 @@ export default function Profile() {
               ) : (
                 // Reversing the array to show recent bids first if the backend doesn't sort
                 bidHistory.slice().reverse().map((bid, i) => (
-                  <Link to={`/auctions/${bid.auction?._id}`} key={bid._id || i} className="bid-row">
+                  <Link
+                    to={`/auctions/${bid.auction?._id}`}
+                    key={bid._id || i}
+                    className="bid-row"
+                  >
                     <span className="bid-date">{formatDate(bid.createdAt)}</span>
                     <span className="bid-amount">₹{bid.amount}</span>
                   </Link>
