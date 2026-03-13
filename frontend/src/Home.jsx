@@ -1,6 +1,6 @@
 // frontend/src/Home.jsx
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import NavBar from "./NavBar";
 import "./home.css";
 
@@ -44,6 +44,16 @@ export default function Home() {
       <div className="home-header">
         <h1>Browse Items for Auction</h1>
         <p>Select any item to view details and place your bid</p>
+      </div>
+
+      {/* CTA: Sell something */}
+      <div className="sell-cta-banner">
+        <div className="sell-cta-content">
+          <span className="sell-cta-text">Have something to sell?</span>
+          <Link to="/categories" className="sell-cta-btn">
+            + Post Your Ad
+          </Link>
+        </div>
       </div>
 
       {items.length === 0 ? (

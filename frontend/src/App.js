@@ -7,6 +7,9 @@ import ItemDetail from "./ItemDetail";
 import AuctionDetail from "./AuctionDetail";
 import Profile from "./Profile";
 import SellerDashboard from "./SellerDashboard";
+import CategoryList from "./CategoryList";
+import SubcategoryList from "./SubcategoryList";
+import PostAdView from "./PostAdView";
 
 function Dashboard() {
   const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -39,6 +42,9 @@ function App() {
         <Route path="/items/:id" element={<ItemDetail />} />
         <Route path="/auctions/:id" element={<AuctionDetail />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/categories" element={<CategoryList />} />
+        <Route path="/category/:categoryId" element={<SubcategoryList />} />
+        <Route path="/category/:categoryId/:subcategoryId" element={<PostAdView />} />
       </Routes>
     </Router>
   );

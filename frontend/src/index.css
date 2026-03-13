@@ -21,7 +21,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--background-gradient);
+  /* Warm brown palette — matches standalone CategoryStyles */
+  background: radial-gradient(circle at center, #f4eee6 0%, #e8decb 100%);
+  color: #3e3328;
   min-height: 100vh;
   display: flex;
   flex-direction: column;

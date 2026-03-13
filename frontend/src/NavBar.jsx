@@ -1,36 +1,59 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import "./navbar.css";
 
 export default function NavBar() {
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/");
   };
+
   return (
-    <nav
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "0.5rem 1rem",
-        borderBottom: "1px solid #ccc",
-      }}
-    >
-      <div>
-        <Link to="/home" style={{ marginRight: "1rem" }}>
-          Home
+    <nav className="navbar">
+      <div className="nav-container">
+        {/* Logo */}
+        <Link to="/home" className="nav-logo">
+          🛍️ ThriftStore
         </Link>
-        <Link to="/upload" style={{ marginRight: "1rem" }}>
-          Sell Item
-        </Link>
-        <Link to="/seller-dashboard" style={{ marginRight: "1rem" }}>
-          My Auctions
-        </Link>
-        <Link to="/profile">Profile</Link>
+
+        {/* Links */}
+        <ul className="nav-menu">
+          <li className="nav-item">
+            <Link to="/home" className="nav-link">
+              Browse
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/categories" className="nav-link sell-btn">
+              + Post Ad
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/seller-dashboard" className="nav-link">
+              My Auctions
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/profile" className="nav-link">
+              Profile
+            </Link>
+          </li>
+          {user?.name && (
+            <li className="nav-item nav-user">
+              Hi, {user.name.split(" ")[0]}
+            </li>
+          )}
+          <li className="nav-item">
+            <button className="nav-logout" onClick={logout}>
+              Logout
+            </button>
+          </li>
+        </ul>
       </div>
-      <button onClick={logout}>Logout</button>
     </nav>
   );
 }
