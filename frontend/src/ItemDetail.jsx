@@ -16,10 +16,10 @@ export default function ItemDetail() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [timeLeft, setTimeLeft] = useState("");
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   const goBack = () => {
     if (window.history.length > 1) {
@@ -28,8 +28,6 @@ export default function ItemDetail() {
       navigate("/home");
     }
   };
-
-  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   // Fetch item details
   useEffect(() => {
@@ -50,7 +48,6 @@ export default function ItemDetail() {
   useEffect(() => {
     const fetchAuctionAndBids = async () => {
       try {
-        // Try to fetch auction for this item
         const auctionRes = await fetch(`${API_BASE_URL}/auctions?itemId=${id}`, {
           credentials: "include",
         });
@@ -59,7 +56,6 @@ export default function ItemDetail() {
           if (Array.isArray(auctionsData) && auctionsData.length > 0) {
             setAuction(auctionsData[0]);
             
-            // Fetch bids for this auction
             const bidsRes = await fetch(`${API_BASE_URL}/bids/auction/${auctionsData[0]._id}`, {
               credentials: "include",
             });
@@ -75,38 +71,14 @@ export default function ItemDetail() {
     };
 
     if (id) fetchAuctionAndBids();
+    
+    // Auto-refresh auction and bids every 5 seconds
+    const interval = setInterval(() => {
+        if (id) fetchAuctionAndBids();
+    }, 5000);
+    
+    return () => clearInterval(interval);
   }, [id]);
-
-  // Countdown timer
-  useEffect(() => {
-    if (!auction) return;
-
-    const timer = setInterval(() => {
-      const now = new Date();
-      const end = new Date(auction.endTime);
-      const diff = end - now;
-
-      if (diff <= 0) {
-        setTimeLeft("Auction ended");
-        clearInterval(timer);
-      } else {
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-        if (days > 0) {
-          setTimeLeft(`${days}d ${hours}h left`);
-        } else if (hours > 0) {
-          setTimeLeft(`${hours}h ${minutes}m left`);
-        } else {
-          setTimeLeft(`${minutes}m ${seconds}s left`);
-        }
-      }
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [auction]);
 
   const placeBid = async () => {
     if (!bidAmount || parseFloat(bidAmount) <= 0) {
@@ -125,10 +97,7 @@ export default function ItemDetail() {
       setMessage("");
 
       const amount = parseFloat(bidAmount);
-      
-      // Get the asking price (default to auction starting price if item doesn't have it)
       const askingPrice = parseFloat(item.askingPrice || (auction ? auction.startingPrice : "0"));
-      
       const minBidAmount = auction
         ? Math.max(askingPrice, auction.currentHighestBid) + 1
         : askingPrice;
@@ -139,12 +108,9 @@ export default function ItemDetail() {
         return;
       }
 
-      // If no auction exists, create one first
       let auctionId = auction?._id;
       if (!auction) {
-        const endTime = new Date(
-          Date.now() + item.biddingDuration * 60 * 60 * 1000
-        );
+        const endTime = new Date(Date.now() + item.biddingDuration * 60 * 60 * 1000);
         const auctionRes = await fetch(`${API_BASE_URL}/auctions`, {
           method: "POST",
           credentials: "include",
@@ -159,16 +125,12 @@ export default function ItemDetail() {
           }),
         });
 
-        if (!auctionRes.ok) {
-          throw new Error("Failed to create auction");
-        }
-
+        if (!auctionRes.ok) throw new Error("Failed to create auction");
         const newAuction = await auctionRes.json();
         auctionId = newAuction._id;
         setAuction(newAuction);
       }
 
-      // Place the bid
       const bidRes = await fetch(`${API_BASE_URL}/bids`, {
         method: "POST",
         credentials: "include",
@@ -190,22 +152,13 @@ export default function ItemDetail() {
       setMessage("Bid placed successfully!");
       setBidAmount("");
       
-      // Refresh auction and bids
-      const updatedAuctionRes = await fetch(`${API_BASE_URL}/auctions/${auctionId}`, {
-        credentials: "include",
-      });
-      if (updatedAuctionRes.ok) {
-        const updatedAuction = await updatedAuctionRes.json();
-        setAuction(updatedAuction);
-      }
+      // Refresh
+      const updatedAuctionRes = await fetch(`${API_BASE_URL}/auctions/${auctionId}`, { credentials: "include" });
+      if (updatedAuctionRes.ok) setAuction(await updatedAuctionRes.json());
 
-      const updatedBidsRes = await fetch(`${API_BASE_URL}/bids/auction/${auctionId}`, {
-        credentials: "include",
-      });
-      if (updatedBidsRes.ok) {
-        const updatedBids = await updatedBidsRes.json();
-        setBids(Array.isArray(updatedBids) ? updatedBids : []);
-      }
+      const updatedBidsRes = await fetch(`${API_BASE_URL}/bids/auction/${auctionId}`, { credentials: "include" });
+      if (updatedBidsRes.ok) setBids(await updatedBidsRes.json());
+      
     } catch (err) {
       setError(err.message || "Error placing bid");
     } finally {
@@ -213,183 +166,130 @@ export default function ItemDetail() {
     }
   };
 
-  if (error && !item) return <p style={{ color: "red" }}>{error}</p>;
-  if (!item) return <p>Loading...</p>;
+  if (error && !item) return <p className="item-detail-msg error">{error}</p>;
+  if (!item) return <p className="item-detail-msg">Loading...</p>;
 
-  // Get all images
-  const allImages = (item.images && item.images.length > 0)
-    ? item.images
-    : item.image
-    ? [item.image]
-    : [];
+  const allImages = (item.images && item.images.length > 0) ? item.images : item.image ? [item.image] : [];
   const displayImage = allImages[selectedImage] || allImages[0];
 
   const isOwnItem = item.seller?._id === currentUser.id;
   const auctionEnded = auction && (new Date(auction.endTime) <= new Date() || !auction.isActive);
+  const highestBid = auction ? auction.currentHighestBid || auction.startingPrice || item.askingPrice : item.askingPrice;
 
   return (
-    <div className="item-detail-container">
+    <div className="item-detail-page">
       <NavBar />
-      <div className="back-button-container" style={{ padding: "1rem" }}>
-        <button
-          className="back-button"
-          onClick={goBack}
-          style={{
-            padding: "0.5rem 1rem",
-            borderRadius: "6px",
-            border: "1px solid #ccc",
-            background: "white",
-            cursor: "pointer",
-          }}
-        >
-          ← Back
-        </button>
-      </div>
-
-      <div className="item-detail-wrapper">
-        {/* Image Section */}
-        <div className="image-section">
-          {displayImage && (
-            <div className="image-gallery-container">
-              <div className="main-image-wrapper">
-                <img
-                  src={displayImage}
-                  alt={item.title}
-                  className="main-image"
-                />
-              </div>
-
-              {allImages.length > 1 && (
-                <div className="thumbnails-wrapper">
-                  {allImages.map((img, index) => (
-                    <img
-                      key={index}
-                      src={img}
-                      alt={`Thumbnail ${index + 1}`}
-                      className={`thumbnail ${selectedImage === index ? "active" : ""}`}
-                      onClick={() => setSelectedImage(index)}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Details Section */}
-        <div className="details-section">
-          <h1 className="item-title">{item.title}</h1>
-          <p className="item-category">{item.category}</p>
-          <p className="seller-info">Seller: <strong>{item.seller?.name}</strong></p>
-
-          <div className="price-info-box">
-            <div className="price-item">
-              <span className="label">Asking Price</span>
-              <span className="value">₹{item.askingPrice || (auction ? auction.startingPrice : "N/A")}</span>
-            </div>
-            {auction && (
-              <>
-                <div className="price-item">
-                  <span className="label">Current Highest Bid</span>
-                  <span className="value">₹{auction.currentHighestBid || item.askingPrice || auction.startingPrice}</span>
-                </div>
-                <div className="price-item">
-                  <span className="label">Time Remaining</span>
-                  <span className="value">{timeLeft}</span>
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className="item-description-box">
-            <h3>Description</h3>
-            <p>{item.description}</p>
-          </div>
-
-          {/* Bids History */}
-          {auction && (
-            <div className="bids-history-section">
-              <h3>Bid History</h3>
-              {bids.length === 0 ? (
-                <p className="no-bids">No bids yet. Be the first to bid!</p>
-              ) : (
-                <div className="bids-list">
-                  {bids.map((bid, index) => (
-                    <div key={bid._id} className="bid-item">
-                      <span className="bid-number">{bids.length - index}</span>
-                      <div className="bid-info">
-                        <span className="bid-bidder">
-                          {isOwnItem
-                            ? bid.bidder?.name || "Anonymous"
-                            : `Bidder ${bids.length - index}`}
-                        </span>
-                        <span className="bid-time">
-                          {new Date(bid.createdAt).toLocaleString()}
-                        </span>
-                      </div>
-                      <span className="bid-amount">₹{bid.amount}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {!isOwnItem && (
-                <p className="bid-privacy-notice">
-                  💡 Bidder names are anonymous to other users. Only the seller
-                  sees who bid on this item.
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Bid Form */}
-          {!isOwnItem && !auctionEnded && (
-            <div className="bid-form-section">
-              <h3>Place Your Bid</h3>
-              {error && <div className="alert error">{error}</div>}
-              {message && <div className="alert success">{message}</div>}
+      
+      <div className="item-detail-container">
+        {/* Ornate Frame around the whole content */}
+        <div className="ornate-frame">
+          <div className="ornate-frame-inner">
+            
+            <div className="item-detail-grid">
               
-              <div className="bid-form">
-                <div className="form-group">
-                  <label>Bid Amount (₹)</label>
-                  <input
-                    type="number"
-                    placeholder={`Min: ₹${
-                      auction
-                        ? Math.max(parseFloat(item.askingPrice || (auction ? auction.startingPrice : "0")), auction.currentHighestBid) + 1
-                        : parseFloat(item.askingPrice || (auction ? auction.startingPrice : "0"))
-                    }`}
-                    value={bidAmount}
-                    onChange={(e) => setBidAmount(e.target.value)}
-                    disabled={loading}
-                    min={
-                      auction
-                        ? Math.max(parseFloat(item.askingPrice || (auction ? auction.startingPrice : "0")), auction.currentHighestBid) + 1
-                        : parseFloat(item.askingPrice || (auction ? auction.startingPrice : "0"))
-                    }
-                  />
+              {/* Image Section */}
+              <div className="image-section">
+                <div className="wood-picture-frame">
+                  {displayImage ? (
+                    <img src={displayImage} alt={item.title} className="framed-image" />
+                  ) : (
+                    <div className="no-image">No Image</div>
+                  )}
+                  {/* Decorative corners inside the frame */}
+                  <div className="frame-corner br-tl"></div>
+                  <div className="frame-corner br-tr"></div>
+                  <div className="frame-corner br-bl"></div>
+                  <div className="frame-corner br-br"></div>
                 </div>
-                <button
-                  onClick={placeBid}
-                  disabled={loading}
-                  className="bid-button"
-                >
-                  {loading ? "Placing bid..." : auction ? "Place Bid" : "Start Auction & Bid"}
-                </button>
+
+                {allImages.length > 1 && (
+                  <div className="thumbnails-wrapper">
+                    {allImages.map((img, index) => (
+                      <img
+                        key={index}
+                        src={img}
+                        alt={`Thumbnail ${index + 1}`}
+                        className={`thumbnail ${selectedImage === index ? "active" : ""}`}
+                        onClick={() => setSelectedImage(index)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Details Section */}
+              <div className="details-section">
+                <h1 className="item-title">{item.title}</h1>
+                <p className="item-category">
+                  {item.category?.toUpperCase() || "ITEM"}
+                </p>
+                <p className="seller-info">Seller: <strong>{item.seller?.name || "Unknown"}</strong></p>
+
+                {/* Price Label (Torn paper look) */}
+                <div className="torn-paper-price">
+                  <div className="price-label">ASKING PRICE</div>
+                  <div className="price-value">₹{item.askingPrice || (auction ? auction.startingPrice : "N/A")}</div>
+                </div>
+
+                <div className="item-description-box">
+                  <p className="description-label">Description</p>
+                  <p className="description-text">{item.description}</p>
+                </div>
+
+                {/* Bid Form / Status */}
+                {!isOwnItem && !auctionEnded && (
+                  <div className="bid-form-box">
+                    <div className="bid-form-header">Place Your Bid</div>
+                    <div className="bid-form-body">
+                      <div className="form-group">
+                        <label>Bid Amount</label>
+                        <input
+                          type="number"
+                          className="vintage-input"
+                          placeholder={`Min: ₹${auction ? Math.max(parseFloat(item.askingPrice || (auction ? auction.startingPrice : "0")), auction.currentHighestBid) + 1 : parseFloat(item.askingPrice || (auction ? auction.startingPrice : "0"))}`}
+                          value={bidAmount}
+                          onChange={(e) => setBidAmount(e.target.value)}
+                          disabled={loading}
+                        />
+                      </div>
+                      <button onClick={placeBid} disabled={loading} className="vintage-btn block-btn">
+                        {loading ? "Placing bid..." : auction ? "Start Auction & Bid" : "Start Auction & Bid"}
+                      </button>
+                      {error && <p className="form-msg error">{error}</p>}
+                      {message && <p className="form-msg success">{message}</p>}
+                    </div>
+                  </div>
+                )}
+
+                {isOwnItem && (
+                  <div className="status-notice warning">
+                    This is your own listing. You cannot bid on it.
+                  </div>
+                )}
+
+                {auctionEnded && (
+                  <div className="status-notice ended">
+                    This auction has ended.
+                  </div>
+                )}
+
+                {/* Bid History (Visible to seller) */}
+                {isOwnItem && auction && bids.length > 0 && (
+                  <div className="bid-history-box">
+                    <div className="bid-history-header">Bid History</div>
+                    <div className="bid-list">
+                      {bids.map((bid, index) => (
+                        <div key={bid._id} className="bid-row">
+                          <span className="bid-bidder">{bid.bidder?.name || "Unknown"}</span>
+                          <span className="bid-amount">₹{bid.amount}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          )}
-
-          {isOwnItem && (
-            <div className="info-box warning">
-              ℹ️ This is your own listing. You cannot bid on it.
-            </div>
-          )}
-
-          {auctionEnded && (
-            <div className="info-box ended">
-              ❌ This auction has ended.
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

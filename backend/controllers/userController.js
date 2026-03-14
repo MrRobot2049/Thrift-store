@@ -27,7 +27,10 @@ exports.getMyProfile = async (req, res) => {
 
     // Get bids placed by user
     const myBids = await Bid.find({ bidder: userId })
-      .populate("auction")
+      .populate({
+        path: "auction",
+        populate: { path: "item" },
+      })
       .sort({ createdAt: -1 });
 
     res.json({

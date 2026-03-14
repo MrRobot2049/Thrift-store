@@ -24,21 +24,16 @@ export default function NavBar() {
   return (
     <nav className="navbar">
       <div className="nav-container">
-        {/* Logo */}
-        <Link to="/home" className="nav-logo">
+        {/* Logo - Metallic Box */}
+        <Link to="/home" className="nav-logo metallic-button">
           🛍️ ThriftStore
         </Link>
 
         {/* Links */}
         <ul className="nav-menu">
           <li className="nav-item">
-            <Link to="/home" className="nav-link">
-              Browse
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link to="/categories" className="nav-link sell-btn">
-              + Post Ad
+            <Link to="/categories" className="nav-link metallic-button">
+              Sell
             </Link>
           </li>
           <li className="nav-item">
@@ -57,7 +52,7 @@ export default function NavBar() {
             </li>
           )}
           <li className="nav-item">
-            <button className="nav-logout" onClick={logout}>
+            <button className="nav-logout metallic-button" onClick={logout}>
               Logout
             </button>
           </li>

@@ -9,7 +9,7 @@ const API_BASE_URL =
 export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState("listed"); // 'listed' or 'auctions'
+  const [activeTab, setActiveTab] = useState("listed"); // only 'listed' is needed now
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -33,7 +33,6 @@ export default function Profile() {
   if (!profile) return <p style={{ padding: "2rem" }}>Loading profile...</p>;
 
   const itemsListed = profile.itemsListed || [];
-  const auctionsCreated = profile.auctionsCreated || [];
   const wonAuctions = profile.wonAuctions || [];
   const bidHistory = profile.bidHistory || [];
 
@@ -83,12 +82,10 @@ export default function Profile() {
             </div>
             <div className="profile-info">
               <div className="info-row">
-                <span className="info-label">Name: </span>
-                <span className="info-value-name">{profile.user.name}</span>
+                 <span className="info-value-name">{profile.user.name}</span>
               </div>
               <div className="info-row">
-                <span className="info-label">Email: </span>
-                <span className="info-value-email">{profile.user.email}</span>
+                 <span className="info-value-email">{profile.user.email}</span>
               </div>
             </div>
           </div>
@@ -96,89 +93,59 @@ export default function Profile() {
 
         <div className="profile-grid">
           
-          {/* LEFT COLUMN */}
+          {/* LEFT COLUMN: Single "Listed Items" Tab */}
           <div className="left-section">
             <div className="tabs-header">
               <button 
-                className={`tab-btn ${activeTab === 'listed' ? 'active' : ''}`}
-                onClick={() => setActiveTab('listed')}
+                className="tab-btn active"
+                style={{ cursor: "default" }}
               >
                 Listed Items ({itemsListed.length})
-              </button>
-              <button 
-                className={`tab-btn ${activeTab === 'auctions' ? 'active' : ''}`}
-                onClick={() => setActiveTab('auctions')}
-              >
-                Auctions I Created ({auctionsCreated.length})
               </button>
             </div>
 
             <div className="tab-content">
-              {activeTab === 'listed' ? (
-                <div className="cards-grid">
-                  {itemsListed.length === 0 ? <p style={{ color: '#888' }}>No items listed yet.</p> : null}
-                  {itemsListed.map(it => (
-                    <Link
-                      to={`/items/${it._id}`}
-                      key={it._id}
-                      className="item-card"
-                    >
-                      <div className="card-header">
-                        <span className="card-title" title={it.title}>{it.title}</span>
-                        <span className="badge badge-available">
-                          {String(it.status).toLowerCase() === 'available' ? 'Available' : 'Sold'}
-                        </span>
-                      </div>
-                      <div className="card-image-wrapper">
-                        <img src={getImage(it)} alt={it.title} className="card-image" />
-                      </div>
-                      <div className="card-footer profile-card-gap">
-                        {it.askingPrice && <span className="card-bid">Price <span className="card-bid-val">₹{it.askingPrice}</span></span>}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="cards-grid">
-                  {auctionsCreated.length === 0 ? <p style={{ color: '#888' }}>No auctions created yet.</p> : null}
-                  {auctionsCreated.map(au => (
-                    <Link
-                      to={`/auctions/${au._id}`}
-                      key={au._id}
-                      className="item-card"
-                    >
-                      <div className="card-header">
-                        <span className="card-title" title={au.item?.title}>{au.item?.title}</span>
-                        <span className={`badge ${au.isActive ? 'badge-live' : 'badge-ended'}`}>
-                          {au.isActive ? 'LIVE' : 'ENDED'}
-                        </span>
-                      </div>
-                      <div className="card-image-wrapper">
-                        <img src={getImage(au.item)} alt={au.item?.title} className="card-image" />
-                      </div>
-                      <div className="card-footer profile-card-gap">
-                        <span className="card-bid">Bid for <span className="card-bid-val">₹{au.currentHighestBid}</span></span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
+              <div className="cards-grid">
+                {itemsListed.length === 0 ? <p style={{ color: '#888' }}>No items listed yet.</p> : null}
+                {itemsListed.map(it => (
+                  <Link
+                    to={`/items/${it._id}`}
+                    key={it._id}
+                    className="item-card"
+                  >
+                    <div className="card-header">
+                      <span className="card-title" title={it.title}>{it.title}</span>
+                      <span className="badge badge-available">
+                        {String(it.status).toLowerCase() === 'available' ? 'AVAILABLE' : 'SOLD'}
+                      </span>
+                    </div>
+                    <div className="card-image-wrapper">
+                      <img src={getImage(it)} alt={it.title} className="card-image" />
+                    </div>
+                    <div className="card-footer profile-card-gap">
+                      {it.askingPrice && <span className="card-bid">Price <span className="card-bid-val">₹{it.askingPrice}</span></span>}
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* RIGHT COLUMN */}
+          {/* RIGHT COLUMN: Purchases & Bids */}
           <div className="right-section">
-            <h3 className="section-heading">Auctions I Won ({wonAuctions.length})</h3>
+            <h3 className="section-heading">My Purchases ({wonAuctions.length})</h3>
             {wonAuctions.length === 0 ? (
-              <p style={{ color: '#888', marginBottom: '3rem' }}>No winning auctions yet.</p>
+              <p style={{ color: '#888', marginBottom: '3rem' }}>No purchases yet.</p>
             ) : (
               wonAuctions.map(au => (
                 <Link to={`/auctions/${au._id}`} key={au._id} className="won-card">
                   <div className="won-img-wrapper">
                     <img src={getImage(au.item)} alt={au.item?.title} className="won-img" />
                   </div>
-                  <div className="won-text">
-                    Won for ₹{au.soldPrice}
+                  <div className="won-text-block">
+                    <span className="won-title">{au.item?.title || "Item"}</span>
+                    <span className="won-desc">Purchase completed</span>
+                    <div className="won-amount">₹{au.soldPrice}</div>
                   </div>
                   <div className="won-score-box">
                     <div className="won-score-numbers">76<br/>57<br/>52<br/>43</div>
@@ -188,7 +155,7 @@ export default function Profile() {
               ))
             )}
 
-            <h3 className="section-heading">My Bids</h3>
+            <h3 className="section-heading" style={{ marginTop: '3rem' }}>My Bids</h3>
             <div className="bids-container">
               {bidHistory.length === 0 ? (
                 <p style={{ color: '#888' }}>No bids placed yet.</p>
@@ -200,8 +167,19 @@ export default function Profile() {
                     key={bid._id || i}
                     className="bid-row"
                   >
-                    <span className="bid-date">{formatDate(bid.createdAt)}</span>
-                    <span className="bid-amount">₹{bid.amount}</span>
+                    <div className="bid-info-left">
+                      <span className="bid-item-title">{bid.auction?.item?.title || "Unknown Item"}</span>
+                      {bid.auction?.item?.category && (
+                        <span className="bid-item-category">{bid.auction.item.category.toUpperCase()}</span>
+                      )}
+                      <span className="bid-date">{formatDate(bid.createdAt)}</span>
+                    </div>
+                    <div className="bid-info-right">
+                      <span className="bid-amount">₹{bid.amount}</span>
+                      <span className={`badge ${bid.auction?.isActive ? 'badge-live' : 'badge-ended'}`}>
+                        {bid.auction?.isActive ? 'LIVE' : 'ENDED'}
+                      </span>
+                    </div>
                   </Link>
                 ))
               )}

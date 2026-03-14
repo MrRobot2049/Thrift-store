@@ -346,22 +346,7 @@ const ItemView = () => {
         </div>
       </div>
 
-      {/* FOOTER */}
-      <footer className="corporate-footer">
-        <div className="footer-logos">
-          <div className="logo-text">CarTrade Tech <span>GROUP</span></div>
-          <div className="logo-divider"></div>
-          <div className="logo-text">olx</div>
-          <div className="logo-text">carwale</div>
-          <div className="logo-text">bikewale</div>
-          <div className="logo-text">CarTrade</div>
-          <div className="logo-text">MOBILITY<br />OUTLOOK</div>
-        </div>
-        <div className="footer-bottom">
-          <span className="sitemap-link">Sitemap</span>
-          <span className="copyright">Free Classifieds in India . © 2006-2026 OLX</span>
-        </div>
-      </footer>
+
     </div>
   );
 };
