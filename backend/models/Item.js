@@ -34,7 +34,7 @@ const itemSchema = new mongoose.Schema(
     },
 
     biddingDuration: {
-      type: Number, // in hours
+      type: Number, 
       required: true,
       default: 24,
     },
