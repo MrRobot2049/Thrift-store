@@ -218,65 +218,58 @@
   color: #2c3e2e;
 }
 
-/* --- Torn Paper Price Label --- */
-.torn-paper-price {
-  background: #fdfbf7;
-  padding: 20px 25px;
+/* --- 3-Column Price Strip --- */
+.price-strip {
+  display: flex;
+  align-items: stretch;
+  background: #f0f4f8;
+  border-left: 4px solid #5b7fa6;
+  border-radius: 4px;
   margin-top: 10px;
   margin-bottom: 5px;
-  /* creating the torn/jagged edge effect at bottom/top */
-  border: 1px solid rgba(0,0,0,0.06);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-  position: relative;
-  /* A slight rotation for realism */
-  transform: rotate(-0.5deg);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
-/* The actual jagged edge using a repeating linear gradient hack, or simply drop shadow */
-.torn-paper-price::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background-image: 
-    linear-gradient(135deg, transparent 50%, #fdfbf7 50%),
-    linear-gradient(45deg, transparent 50%, #fdfbf7 50%);
-  background-position: left top;
-  background-repeat: repeat-x;
-  background-size: 12px 6px;
+.price-strip-col {
+  flex: 1;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.torn-paper-price::before {
-  content: "";
-  position: absolute;
-  top: -6px;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background-image: 
-    linear-gradient(135deg, #fdfbf7 50%, transparent 50%),
-    linear-gradient(45deg, #fdfbf7 50%, transparent 50%);
-  background-position: left top;
-  background-repeat: repeat-x;
-  background-size: 12px 6px;
+.price-strip-divider {
+  width: 1px;
+  background: #dce3ec;
+  margin: 10px 0;
 }
 
-
-.price-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #8c7b68;
-  letter-spacing: 1px;
-}
-
-.price-value {
-  font-family: 'Playfair Display', serif;
-  font-size: 34px;
+.price-strip-label {
+  font-size: 10px;
   font-weight: 700;
-  color: #9d7b43; /* Golden brownish */
-  margin-top: 5px;
+  letter-spacing: 1.2px;
+  color: #7a8fa8;
+  text-transform: uppercase;
+}
+
+.price-strip-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.price-strip-value.asking {
+  color: #9d7b43;
+}
+
+.price-strip-value.highest {
+  color: #9d7b43;
+}
+
+.price-strip-value.time {
+  color: #3a6ea8;
+  font-size: 18px;
 }
 
 /* --- Description --- */

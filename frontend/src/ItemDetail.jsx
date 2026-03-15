@@ -1,16 +1,41 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import NavBar from "./NavBar";
 import "./itemDetail.css";
 
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
 
+function TimeRemaining({ endTime }) {
+  const [remaining, setRemaining] = useState("");
+
+  useEffect(() => {
+    const calc = () => {
+      const diff = new Date(endTime) - new Date();
+      if (diff <= 0) { setRemaining("Ended"); return; }
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setRemaining(
+        h > 0
+          ? `${h}h ${m}m left`
+          : m > 0
+          ? `${m}m ${s}s left`
+          : `${s}s left`
+      );
+    };
+    calc();
+    const t = setInterval(calc, 1000);
+    return () => clearInterval(t);
+  }, [endTime]);
+
+  return <span>{remaining}</span>;
+}
+
 export default function ItemDetail() {
   const { id } = useParams();
   const [item, setItem] = useState(null);
   const [auction, setAuction] = useState(null);
-  const [bids, setBids] = useState([]);
   const [bidAmount, setBidAmount] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -18,16 +43,10 @@ export default function ItemDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
 
   const token = localStorage.getItem("token");
-  const navigate = useNavigate();
+
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
-  const goBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate("/home");
-    }
-  };
+
 
   // Fetch item details
   useEffect(() => {
@@ -55,14 +74,6 @@ export default function ItemDetail() {
           const auctionsData = await auctionRes.json();
           if (Array.isArray(auctionsData) && auctionsData.length > 0) {
             setAuction(auctionsData[0]);
-            
-            const bidsRes = await fetch(`${API_BASE_URL}/bids/auction/${auctionsData[0]._id}`, {
-              credentials: "include",
-            });
-            if (bidsRes.ok) {
-              const bidsData = await bidsRes.json();
-              setBids(Array.isArray(bidsData) ? bidsData : []);
-            }
           }
         }
       } catch (err) {
@@ -156,8 +167,7 @@ export default function ItemDetail() {
       const updatedAuctionRes = await fetch(`${API_BASE_URL}/auctions/${auctionId}`, { credentials: "include" });
       if (updatedAuctionRes.ok) setAuction(await updatedAuctionRes.json());
 
-      const updatedBidsRes = await fetch(`${API_BASE_URL}/bids/auction/${auctionId}`, { credentials: "include" });
-      if (updatedBidsRes.ok) setBids(await updatedBidsRes.json());
+
       
     } catch (err) {
       setError(err.message || "Error placing bid");
@@ -174,7 +184,7 @@ export default function ItemDetail() {
 
   const isOwnItem = item.seller?._id === currentUser.id;
   const auctionEnded = auction && (new Date(auction.endTime) <= new Date() || !auction.isActive);
-  const highestBid = auction ? auction.currentHighestBid || auction.startingPrice || item.askingPrice : item.askingPrice;
+
 
   return (
     <div className="item-detail-page">
@@ -225,10 +235,28 @@ export default function ItemDetail() {
                 </p>
                 <p className="seller-info">Seller: <strong>{item.seller?.name || "Unknown"}</strong></p>
 
-                {/* Price Label (Torn paper look) */}
-                <div className="torn-paper-price">
-                  <div className="price-label">ASKING PRICE</div>
-                  <div className="price-value">₹{item.askingPrice || (auction ? auction.startingPrice : "N/A")}</div>
+                {/* 3-column price strip */}
+                <div className="price-strip">
+                  <div className="price-strip-col">
+                    <div className="price-strip-label">ASKING PRICE</div>
+                    <div className="price-strip-value asking">₹{item.askingPrice || (auction ? auction.startingPrice : "N/A")}</div>
+                  </div>
+                  <div className="price-strip-divider" />
+                  <div className="price-strip-col">
+                    <div className="price-strip-label">CURRENT HIGHEST BID</div>
+                    <div className="price-strip-value highest">
+                      {auction && auction.currentHighestBid ? `₹${auction.currentHighestBid}` : "—"}
+                    </div>
+                  </div>
+                  <div className="price-strip-divider" />
+                  <div className="price-strip-col">
+                    <div className="price-strip-label">TIME REMAINING</div>
+                    <div className="price-strip-value time">
+                      {auction && !auctionEnded
+                        ? <TimeRemaining endTime={auction.endTime} />
+                        : auctionEnded ? "Ended" : "—"}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="item-description-box">
@@ -273,20 +301,7 @@ export default function ItemDetail() {
                   </div>
                 )}
 
-                {/* Bid History (Visible to seller) */}
-                {isOwnItem && auction && bids.length > 0 && (
-                  <div className="bid-history-box">
-                    <div className="bid-history-header">Bid History</div>
-                    <div className="bid-list">
-                      {bids.map((bid, index) => (
-                        <div key={bid._id} className="bid-row">
-                          <span className="bid-bidder">{bid.bidder?.name || "Unknown"}</span>
-                          <span className="bid-amount">₹{bid.amount}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+
               </div>
             </div>
           </div>
