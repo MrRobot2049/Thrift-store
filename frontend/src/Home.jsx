@@ -11,6 +11,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   const CATEGORIES = [
@@ -48,18 +49,35 @@ export default function Home() {
     fetchItems();
   }, [currentUser.id]);
 
-  const displayedItems = items.filter((item) => {
-    const matchesSearch =
-      searchQuery.trim() === "" ||
-      item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description?.toLowerCase().includes(searchQuery.toLowerCase());
+  const displayedItems = items
+    .filter((item) => {
+      const matchesSearch =
+        searchQuery.trim() === "" ||
+        item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesCategory =
-      selectedCategory === "" ||
-      item.category?.toLowerCase() === selectedCategory.toLowerCase();
+      const matchesCategory =
+        selectedCategory === "" ||
+        item.category?.toLowerCase() === selectedCategory.toLowerCase();
 
-    return matchesSearch && matchesCategory;
-  });
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      const titleA = (a.title || "").toLowerCase();
+      const titleB = (b.title || "").toLowerCase();
+      const priceA = Number(a.askingPrice) || 0;
+      const priceB = Number(b.askingPrice) || 0;
+      const createdA = new Date(a.createdAt || 0).getTime();
+      const createdB = new Date(b.createdAt || 0).getTime();
+
+      if (sortBy === "name-asc") return titleA.localeCompare(titleB);
+      if (sortBy === "name-desc") return titleB.localeCompare(titleA);
+      if (sortBy === "price-asc") return priceA - priceB;
+      if (sortBy === "price-desc") return priceB - priceA;
+
+      // Default sort: newest items first
+      return createdB - createdA;
+    });
 
   return (
     <div className="home-container">
@@ -92,6 +110,20 @@ export default function Home() {
             {CATEGORIES.map((cat) => (
               <option key={cat} value={cat}>{cat}</option>
             ))}
+          </select>
+        </div>
+
+        <div className="sort-filter-wrapper">
+          <select
+            className="wood-category-select"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option value="newest">Sort By: Newest First</option>
+            <option value="name-asc">Sort By: Name (A-Z)</option>
+            <option value="name-desc">Sort By: Name (Z-A)</option>
+            <option value="price-asc">Sort By: Price (Low to High)</option>
+            <option value="price-desc">Sort By: Price (High to Low)</option>
           </select>
         </div>
       </div>
