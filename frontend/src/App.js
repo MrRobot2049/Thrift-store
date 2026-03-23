@@ -9,6 +9,7 @@ import Profile from "./Profile";
 import SellerDashboard from "./SellerDashboard";
 import CategoryList from "./CategoryList";
 import SubcategoryList from "./SubcategoryList";
+import CategoryStepRouter from "./CategoryStepRouter";
 import PostAdView from "./PostAdView";
 
 function Dashboard() {
@@ -44,7 +45,8 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/categories" element={<CategoryList />} />
         <Route path="/category/:categoryId" element={<SubcategoryList />} />
-        <Route path="/category/:categoryId/:subcategoryId" element={<PostAdView />} />
+        <Route path="/category/:categoryId/:subcategoryId" element={<CategoryStepRouter />} />
+        <Route path="/category/:categoryId/:subcategoryId/:nestedSubcategoryId" element={<PostAdView />} />
       </Routes>
     </Router>
   );

@@ -8,7 +8,10 @@ export const categoriesData = {
       </svg>
     ),
     subcategories: [
-      "Engineering Books",
+      {
+        name: "Engineering Books",
+        subcategories: ["1st Year", "2nd Year", "3rd Year", "4th Year"],
+      },
       "Semester Textbooks",
       "Competitive Exam Books",
       "Novels",

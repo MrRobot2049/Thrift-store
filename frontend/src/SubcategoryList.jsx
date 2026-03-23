@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { categoriesData } from './data/categories';
+import { getSubcategoryName, slugify } from './categoryHelpers';
 import './CategoryStyles.css';
 
 const SubcategoryList = () => {
@@ -39,8 +40,8 @@ const SubcategoryList = () => {
           <h2 className="category-title">CHOOSE A SUBCATEGORY</h2>
           <ul className="category-list">
             {category.subcategories.map((sub, index) => {
-              // Create a URL-friendly slug for the subcategory
-              const subSlug = sub.toLowerCase().replace(/\s+/g, '-');
+              const subName = getSubcategoryName(sub);
+              const subSlug = slugify(subName);
               
               return (
                 <li 
@@ -49,7 +50,7 @@ const SubcategoryList = () => {
                   onClick={() => navigate(`/category/${categoryId}/${subSlug}`)}
                 >
                   <div className="category-item-content">
-                    <span className="category-name">{sub}</span>
+                    <span className="category-name">{subName}</span>
                   </div>
                   <span className="category-arrow">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

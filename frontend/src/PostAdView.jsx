@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { categoriesData } from './data/categories';
+import {
+  findCategoryById,
+  findSubcategoryBySlug,
+  formatSlug,
+  getSubcategoryName,
+} from './categoryHelpers';
 import './AdPostStyles.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
@@ -8,7 +13,7 @@ const CLOUDINARY_UPLOAD_URL = process.env.REACT_APP_CLOUDINARY_UPLOAD_URL;
 const CLOUDINARY_PRESET = process.env.REACT_APP_CLOUDINARY_PRESET;
 
 const ItemView = () => {
-  const { categoryId, subcategoryId } = useParams();
+  const { categoryId, subcategoryId, nestedSubcategoryId } = useParams();
   const navigate = useNavigate();
 
   // Field states
@@ -26,13 +31,13 @@ const ItemView = () => {
   
   const fileInputRef = React.useRef(null);
 
-  // Finding category info for breadcrumb
-  const categoryKey = Object.keys(categoriesData).find(
-    (key) => categoriesData[key].id === categoryId
-  );
+  const categoryDetails = findCategoryById(categoryId);
+  const categoryKey = categoryDetails?.categoryKey;
+  const subcategory = findSubcategoryBySlug(categoryDetails?.category, subcategoryId);
 
-  const formattedSubcategoryName = subcategoryId
-    ? subcategoryId.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+  const formattedSubcategoryName = getSubcategoryName(subcategory) || formatSlug(subcategoryId);
+  const formattedNestedSubcategoryName = nestedSubcategoryId
+    ? formatSlug(nestedSubcategoryId)
     : '';
 
   // --- Handlers ---
@@ -179,7 +184,9 @@ const ItemView = () => {
             <h2 className="section-title">SELECTED CATEGORY</h2>
             <div className="breadcrumb-box">
               <span className="breadcrumb-text">
-                {categoryKey} {formattedSubcategoryName && `/ ${formattedSubcategoryName}`}
+                {categoryKey}
+                {formattedSubcategoryName && ` / ${formattedSubcategoryName}`}
+                {formattedNestedSubcategoryName && ` / ${formattedNestedSubcategoryName}`}
               </span>
               <button className="change-btn" onClick={() => navigate('/categories')}>
                 Change
