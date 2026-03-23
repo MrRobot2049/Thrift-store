@@ -78,6 +78,7 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
+  position: relative;
 }
 
 .search-input-wrapper {
@@ -142,6 +143,42 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.results-summary-wrapper {
+  width: 100%;
+  margin-top: -0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.35rem 0.1rem 0;
+}
+
+.results-count {
+  margin: 0;
+  color: #6d5236;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.clear-filters-btn {
+  border: 1px solid rgba(122, 94, 61, 0.35);
+  background: linear-gradient(180deg, #fbf4e8 0%, #f0e0c1 100%);
+  color: #3e280f;
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+}
+
+.clear-filters-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+  box-shadow: 0 5px 12px rgba(90, 60, 20, 0.14);
+}
+
 .wood-category-select:focus {
   border-color: #aa853c;
   box-shadow: 0 4px 12px rgba(90, 60, 20, 0.15);
@@ -163,12 +200,19 @@
   color: inherit;
   display: block;
   outline: none;
-  transition: transform 0.2s, filter 0.2s;
+  transition: transform 0.25s, filter 0.25s;
+  opacity: 0;
+  animation: card-enter 0.45s ease-out forwards;
+  animation-delay: calc(var(--stagger-index, 0) * 40ms);
 }
 
 .wood-card-link:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
   filter: brightness(1.05);
+}
+
+.wood-card-link:hover .wood-image {
+  transform: scale(1.06);
 }
 
 /* Outer Wooden Frame */
@@ -184,6 +228,14 @@
     inset 0 0 10px rgba(0,0,0,0.8),
     inset 0 1px 1px rgba(255,255,255,0.1);
   display: flex;
+  transition: box-shadow 0.3s;
+}
+
+.wood-card-link:hover .wood-card {
+  box-shadow:
+    0 16px 28px rgba(20, 10, 5, 0.55),
+    inset 0 0 10px rgba(0,0,0,0.7),
+    inset 0 1px 1px rgba(255,255,255,0.15);
 }
 
 /* Inner canvas/paper */
@@ -262,6 +314,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain; /* Keep full image visible within frame */
+  transition: transform 0.35s ease;
 }
 
 .wood-no-image {
@@ -365,6 +418,17 @@
   font-size: 1.1rem;
 }
 
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 768px) {
   .sell-banner {
     flex-direction: column;
@@ -377,5 +441,10 @@
   .sort-filter-wrapper {
     min-width: 100%;
     width: 100%;
+  }
+
+  .results-summary-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

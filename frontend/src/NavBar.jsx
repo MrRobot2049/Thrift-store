@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import "./navbar.css";
 
 const API_BASE_URL =
@@ -14,6 +14,7 @@ export default function NavBar() {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [lastCheckedAt, setLastCheckedAt] = useState(0);
   const notificationRef = useRef(null);
+  const unreadCount = notifications.length;
 
   const notificationStorageKey = `ts_notification_last_checked_${
     user?.id || "guest"
@@ -151,19 +152,30 @@ export default function NavBar() {
         {/* Links */}
         <ul className="nav-menu">
           <li className="nav-item">
-            <Link to="/categories" className="nav-link metallic-button">
+            <NavLink
+              to="/categories"
+              className={({ isActive }) =>
+                `nav-link metallic-button${isActive ? " nav-link-active-metallic" : ""}`
+              }
+            >
               Sell
-            </Link>
+            </NavLink>
           </li>
           <li className="nav-item">
-            <Link to="/seller-dashboard" className="nav-link">
+            <NavLink
+              to="/seller-dashboard"
+              className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}
+            >
               My Auctions
-            </Link>
+            </NavLink>
           </li>
           <li className="nav-item">
-            <Link to="/profile" className="nav-link">
+            <NavLink
+              to="/profile"
+              className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}
+            >
               Profile
-            </Link>
+            </NavLink>
           </li>
           {user?.name && (
             <li className="nav-item nav-user">
@@ -172,9 +184,11 @@ export default function NavBar() {
           )}
           <li className="nav-item nav-notification" ref={notificationRef}>
             <button
-              className="notification-btn"
+              className={`notification-btn${isNotificationOpen ? " notification-btn-open" : ""}`}
               onClick={toggleNotifications}
               aria-label="Notifications"
+              aria-expanded={isNotificationOpen}
+              aria-haspopup="menu"
             >
               <svg
                 width="20"
@@ -189,15 +203,15 @@ export default function NavBar() {
                 <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
-              {notifications.length > 0 && (
-                <span className="notification-badge">{notifications.length}</span>
+              {unreadCount > 0 && (
+                <span className="notification-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>
               )}
             </button>
 
             {isNotificationOpen && (
-              <div className="notification-dropdown">
+              <div className="notification-dropdown" role="menu" aria-label="New listings notifications">
                 <p className="notification-heading">New Listings</p>
-                {notifications.length === 0 ? (
+                {unreadCount === 0 ? (
                   <p className="notification-empty">No new notifications</p>
                 ) : (
                   <ul className="notification-list">

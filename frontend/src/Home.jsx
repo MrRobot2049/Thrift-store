@@ -14,6 +14,15 @@ export default function Home() {
   const [sortBy, setSortBy] = useState("newest");
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
+  const formatCurrency = (value) => {
+    if (!value && value !== 0) return "N/A";
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
   const CATEGORIES = [
     "Books",
     "Cycles",
@@ -79,6 +88,14 @@ export default function Home() {
       return createdB - createdA;
     });
 
+  const hasActiveFilters = searchQuery.trim() !== "" || selectedCategory !== "";
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setSelectedCategory("");
+    setSortBy("newest");
+  };
+
   return (
     <div className="home-container">
       <NavBar />
@@ -97,6 +114,7 @@ export default function Home() {
             placeholder="Search items by name or description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="Search items"
           />
         </div>
 
@@ -105,6 +123,7 @@ export default function Home() {
             className="wood-category-select"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
+            aria-label="Filter by category"
           >
             <option value="">Choose a Category</option>
             {CATEGORIES.map((cat) => (
@@ -118,6 +137,7 @@ export default function Home() {
             className="wood-category-select"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
+            aria-label="Sort items"
           >
             <option value="newest">Sort By: Newest First</option>
             <option value="name-asc">Sort By: Name (A-Z)</option>
@@ -125,6 +145,17 @@ export default function Home() {
             <option value="price-asc">Sort By: Price (Low to High)</option>
             <option value="price-desc">Sort By: Price (High to Low)</option>
           </select>
+        </div>
+
+        <div className="results-summary-wrapper">
+          <p className="results-count">
+            Showing {displayedItems.length} of {items.length} items
+          </p>
+          {hasActiveFilters && (
+            <button type="button" className="clear-filters-btn" onClick={clearFilters}>
+              Clear Filters
+            </button>
+          )}
         </div>
       </div>
 
@@ -134,8 +165,13 @@ export default function Home() {
         </div>
       ) : (
         <div className="wood-grid">
-          {displayedItems.map((item) => (
-            <Link to={`/items/${item._id}`} key={item._id} className="wood-card-link">
+          {displayedItems.map((item, index) => (
+            <Link
+              to={`/items/${item._id}`}
+              key={item._id}
+              className="wood-card-link"
+              style={{ "--stagger-index": index }}
+            >
               <div className="wood-card">
                 {/* Golden corner flourishes */}
                 <div className="corner top-left"></div>
@@ -169,7 +205,7 @@ export default function Home() {
                       <div className="wood-price-col">
                         <span className="wood-label">ASKING<br/>PRICE</span>
                         <span className="wood-value">
-                          {item.askingPrice ? `₹${item.askingPrice}` : "N/A"}
+                          {formatCurrency(item.askingPrice)}
                         </span>
                       </div>
                       <div className="wood-seller-col">
