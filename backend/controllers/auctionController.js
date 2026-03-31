@@ -1,5 +1,6 @@
 const Auction = require("../models/Auction");
 const Item = require("../models/Item");
+const { closeAuctionIfExpired, closeExpiredAuctions } = require("../services/auctionLifecycle");
 
 // CREATE AUCTION
 exports.createAuction = async (req, res) => {
@@ -33,17 +34,6 @@ exports.createAuction = async (req, res) => {
     res.status(500).json({ message: "Failed to create auction" });
   }
 };
-
-// helper to close an auction if expired
-async function closeAuctionIfExpired(auction) {
-  if (auction.isActive && new Date() > auction.endTime) {
-    auction.isActive = false;
-    auction.winner = auction.highestBidder;
-    auction.soldPrice = auction.currentHighestBid;
-    await auction.save();
-    // TODO: notify seller (could send email here)
-  }
-}
 
 // GET ALL AUCTIONS
 exports.getAuctions = async (req, res) => {
@@ -112,14 +102,7 @@ exports.getAuctionsByItemId = async (req, res) => {
 };
 
 // optionally expose a periodic close task
-exports.closeExpiredAuctions = async () => {
-  try {
-    const auctions = await Auction.find({ isActive: true, endTime: { $lt: new Date() } });
-    await Promise.all(auctions.map(a => closeAuctionIfExpired(a)));
-  } catch (err) {
-    console.error("Error closing auctions", err);
-  }
-};
+exports.closeExpiredAuctions = closeExpiredAuctions;
 
 // GET USER'S AUCTIONS
 exports.getMyAuctions = async (req, res) => {

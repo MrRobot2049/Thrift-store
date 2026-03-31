@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
 import "./sellerDashboard.css"; // We will update this
 
@@ -178,6 +178,18 @@ export default function SellerDashboard() {
                           </span>
                         </div>
                         <div className="sd-winner-flourish" />
+                      </div>
+                    )}
+
+                    {auctionEnded && auction?.winner && (
+                      <div style={{ marginTop: "1rem" }}>
+                        <Link
+                          to={`/chat/${auction._id}`}
+                          className="sd-status-badge active"
+                          style={{ textDecoration: "none", display: "inline-block" }}
+                        >
+                          Open Winner Chat
+                        </Link>
                       </div>
                     )}
 

@@ -138,20 +138,32 @@ export default function Profile() {
               <p style={{ color: '#888', marginBottom: '3rem' }}>No purchases yet.</p>
             ) : (
               wonAuctions.map(au => (
-                <Link to={`/auctions/${au._id}`} key={au._id} className="won-card">
-                  <div className="won-img-wrapper">
-                    <img src={getImage(au.item)} alt={au.item?.title} className="won-img" />
+                <div key={au._id}>
+                  <Link to={`/auctions/${au._id}`} className="won-card">
+                    <div className="won-img-wrapper">
+                      <img src={getImage(au.item)} alt={au.item?.title} className="won-img" />
+                    </div>
+                    <div className="won-text-block">
+                      <span className="won-title">{au.item?.title || "Item"}</span>
+                      <span className="won-desc">Purchase completed</span>
+                      <div className="won-amount">₹{au.soldPrice}</div>
+                    </div>
+                    <div className="won-score-box">
+                      <div className="won-score-numbers">76<br/>57<br/>52<br/>43</div>
+                      <div className="won-trophy">🏆</div>
+                    </div>
+                  </Link>
+
+                  <div style={{ marginTop: "0.6rem", marginBottom: "1.2rem" }}>
+                    <Link
+                      to={`/chat/${au._id}`}
+                      className="badge badge-live"
+                      style={{ textDecoration: "none", padding: "0.45rem 0.85rem", display: "inline-block" }}
+                    >
+                      Chat With Seller
+                    </Link>
                   </div>
-                  <div className="won-text-block">
-                    <span className="won-title">{au.item?.title || "Item"}</span>
-                    <span className="won-desc">Purchase completed</span>
-                    <div className="won-amount">₹{au.soldPrice}</div>
-                  </div>
-                  <div className="won-score-box">
-                    <div className="won-score-numbers">76<br/>57<br/>52<br/>43</div>
-                    <div className="won-trophy">🏆</div>
-                  </div>
-                </Link>
+                </div>
               ))
             )}
 

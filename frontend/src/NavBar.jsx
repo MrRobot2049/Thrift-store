@@ -12,84 +12,48 @@ export default function NavBar() {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [notifications, setNotifications] = useState([]);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const [lastCheckedAt, setLastCheckedAt] = useState(0);
   const notificationRef = useRef(null);
-  const unreadCount = notifications.length;
-
-  const notificationStorageKey = `ts_notification_last_checked_${
-    user?.id || "guest"
-  }`;
-
-  useEffect(() => {
-    const storedLastCheckedAt = Number(localStorage.getItem(notificationStorageKey) || 0);
-    setLastCheckedAt(storedLastCheckedAt);
-  }, [notificationStorageKey]);
+  const token = localStorage.getItem("token");
+  const unreadCount = notifications.filter((entry) => !entry.isRead).length;
 
   useEffect(() => {
     let isMounted = true;
 
-    const fetchNewItemNotifications = async () => {
+    const fetchNotifications = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/items`);
+        if (!token) {
+          return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/notifications/me`, {
+          credentials: "include",
+          headers: { Authorization: token },
+        });
+
         if (!response.ok) {
           return;
         }
 
-        const items = await response.json();
-        const latestCreatedAt = items.reduce((latest, item) => {
-          const createdAt = new Date(item.createdAt || 0).getTime();
-          return createdAt > latest ? createdAt : latest;
-        }, 0);
+        const data = await response.json();
 
         if (!isMounted) {
           return;
         }
 
-        // First run baseline: avoid flooding old items as notifications.
-        if (!lastCheckedAt) {
-          const baseline = latestCreatedAt || Date.now();
-          localStorage.setItem(notificationStorageKey, String(baseline));
-          setLastCheckedAt(baseline);
-          return;
-        }
-
-        const newItems = items
-          .filter((item) => {
-            const createdAt = new Date(item.createdAt || 0).getTime();
-            const isNewItem = createdAt > lastCheckedAt;
-            const isOwnItem = item.seller?._id === user?.id;
-            return isNewItem && !isOwnItem;
-          })
-          .sort(
-            (a, b) =>
-              new Date(b.createdAt || 0).getTime() -
-              new Date(a.createdAt || 0).getTime()
-          );
-
-        if (newItems.length > 0) {
-          setNotifications((prev) => {
-            const existingIds = new Set(prev.map((item) => item._id));
-            const uniqueNewItems = newItems.filter((item) => !existingIds.has(item._id));
-            return [...uniqueNewItems, ...prev].slice(0, 20);
-          });
-
-          const newestTimestamp = new Date(newItems[0].createdAt || 0).getTime();
-          localStorage.setItem(notificationStorageKey, String(newestTimestamp));
-          setLastCheckedAt(newestTimestamp);
-        }
+        setNotifications(Array.isArray(data) ? data : []);
       } catch (err) {
         // Ignore network errors for notification polling.
       }
     };
 
-    fetchNewItemNotifications();
-    const intervalId = setInterval(fetchNewItemNotifications, NOTIFICATION_POLL_INTERVAL_MS);
+    fetchNotifications();
+    const intervalId = setInterval(fetchNotifications, NOTIFICATION_POLL_INTERVAL_MS);
 
     return () => {
       isMounted = false;
       clearInterval(intervalId);
     };
-  }, [lastCheckedAt, notificationStorageKey, user?.id]);
+  }, [token]);
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -120,7 +84,18 @@ export default function NavBar() {
     setIsNotificationOpen((prev) => {
       const nextOpen = !prev;
       if (nextOpen) {
-        setNotifications([]);
+        fetch(`${API_BASE_URL}/notifications/me/read-all`, {
+          method: "PATCH",
+          credentials: "include",
+          headers: { Authorization: token },
+        }).catch(() => null);
+
+        setNotifications((current) =>
+          current.map((entry) => ({
+            ...entry,
+            isRead: true,
+          }))
+        );
       }
       return nextOpen;
     });
@@ -209,22 +184,22 @@ export default function NavBar() {
             </button>
 
             {isNotificationOpen && (
-              <div className="notification-dropdown" role="menu" aria-label="New listings notifications">
-                <p className="notification-heading">New Listings</p>
-                {unreadCount === 0 ? (
-                  <p className="notification-empty">No new notifications</p>
+              <div className="notification-dropdown" role="menu" aria-label="Notifications">
+                <p className="notification-heading">Notifications</p>
+                {notifications.length === 0 ? (
+                  <p className="notification-empty">No notifications yet</p>
                 ) : (
                   <ul className="notification-list">
-                    {notifications.map((item) => (
-                      <li key={item._id} className="notification-item">
+                    {notifications.map((entry) => (
+                      <li key={entry._id} className="notification-item">
                         <Link
-                          to={`/items/${item._id}`}
+                          to={entry.auction?._id ? `/chat/${entry.auction._id}` : "/profile"}
                           className="notification-link"
                           onClick={() => setIsNotificationOpen(false)}
                         >
-                          <span className="notification-title">{item.title || "New Item"}</span>
+                          <span className="notification-title">{entry.message || "Notification"}</span>
                           <span className="notification-meta">
-                            ₹{item.askingPrice || "N/A"} • {formatTimeAgo(item.createdAt)}
+                            {entry.item?.title || "Auction update"} • {formatTimeAgo(entry.createdAt)}
                           </span>
                         </Link>
                       </li>

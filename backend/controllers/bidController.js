@@ -1,5 +1,6 @@
 const Bid = require("../models/Bid");
 const Auction = require("../models/Auction");
+const { closeAuctionIfExpired } = require("../services/auctionLifecycle");
 
 // PLACE BID
 exports.placeBid = async (req, res) => {
@@ -13,10 +14,7 @@ exports.placeBid = async (req, res) => {
     }
 
     if (new Date() > auction.endTime) {
-      auction.isActive = false;
-      auction.winner = auction.highestBidder;
-      auction.soldPrice = auction.currentHighestBid;
-      await auction.save();
+      await closeAuctionIfExpired(auction);
 
       return res.status(400).json({ message: "Auction ended" });
     }

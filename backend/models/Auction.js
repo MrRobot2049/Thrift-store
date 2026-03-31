@@ -28,6 +28,14 @@ const auctionSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    winnerNotified: {
+      type: Boolean,
+      default: false,
+    },
+    chatRoom: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ChatRoom",
+    },
     soldPrice: {
       type: Number,
     },

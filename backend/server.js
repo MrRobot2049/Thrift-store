@@ -1,8 +1,10 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const http = require("http");
 const session = require("express-session");
 const { MongoStore } = require("connect-mongo");
+const { Server } = require("socket.io");
 
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
@@ -12,9 +14,14 @@ const itemRoutes = require("./routes/itemRoutes");
 const auctionRoutes = require("./routes/auctionRoutes");
 const bidRoutes = require("./routes/bidRoutes");
 const userRoutes = require("./routes/userRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 const { closeExpiredAuctions } = require("./controllers/auctionController");
+const { setIO } = require("./utils/socket");
+const registerChatSocket = require("./socket/chatSocket");
 
 const app = express();
+const server = http.createServer(app);
 
 // Connect to DB
 connectDB();
@@ -85,6 +92,8 @@ app.use("/api/items", itemRoutes);
 app.use("/api/auctions", auctionRoutes);
 app.use("/api/bids", bidRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/chats", chatRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
@@ -93,7 +102,18 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+const io = new Server(server, {
+  cors: {
+    origin: Array.from(allowedOrigins),
+    credentials: true,
+    methods: ["GET", "POST"],
+  },
+});
+
+setIO(io);
+registerChatSocket(io);
+
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   // start background timer to close auctions every minute
   setInterval(() => {
