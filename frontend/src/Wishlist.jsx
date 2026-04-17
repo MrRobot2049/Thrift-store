@@ -57,6 +57,9 @@ export default function Wishlist() {
       <div className="home-header wishlist-header">
         <h1>Your Wishlist</h1>
         <p>Watch subcategories and get notified when a new matching auction is posted.</p>
+        <Link to="/categories" className="wishlist-browse-link">
+          Add another subcategory
+        </Link>
       </div>
 
       {error && <p className="home-error">{error}</p>}
@@ -64,9 +67,6 @@ export default function Wishlist() {
       {wishlistSubscriptions.length === 0 ? (
         <div className="home-empty wishlist-empty">
           <p>You are not watching any subcategories yet.</p>
-          <Link to="/categories" className="wishlist-browse-link">
-            Browse categories
-          </Link>
         </div>
       ) : (
         <div className="wishlist-subscription-list">
