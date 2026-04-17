@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NavBar from "./NavBar";
+import { getWishlistIds, subscribeToWishlist, toggleWishlistItem } from "./wishlistStorage";
 import "./home.css";
 
 const API_BASE_URL =
@@ -12,6 +13,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [sortBy, setSortBy] = useState("newest");
+  const [wishlistIds, setWishlistIds] = useState(() => getWishlistIds());
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   const formatCurrency = (value) => {
@@ -57,6 +59,20 @@ export default function Home() {
 
     fetchItems();
   }, [currentUser.id]);
+
+  useEffect(() => {
+    return subscribeToWishlist((wishlistItems) => {
+      setWishlistIds(wishlistItems.map((item) => item._id));
+    });
+  }, []);
+
+  const handleWishlistToggle = (event, item) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const updatedItems = toggleWishlistItem(item);
+    setWishlistIds(updatedItems.map((wishlistItem) => wishlistItem._id));
+  };
 
   const displayedItems = items
     .filter((item) => {
@@ -104,6 +120,9 @@ export default function Home() {
       <div className="home-header">
         <h1>Browse Items for Auction</h1>
         <p>Select any item to view details and place your bid</p>
+        <Link to="/wishlist" className="wishlist-summary-link">
+          Wishlist: {wishlistIds.length} saved item{wishlistIds.length === 1 ? "" : "s"}
+        </Link>
       </div>
 
       <div className="search-filter-bar">
@@ -173,6 +192,20 @@ export default function Home() {
               style={{ "--stagger-index": index }}
             >
               <div className="wood-card">
+                <button
+                  type="button"
+                  className={`wishlist-toggle ${wishlistIds.includes(item._id) ? "active" : ""}`}
+                  onClick={(event) => handleWishlistToggle(event, item)}
+                  aria-label={
+                    wishlistIds.includes(item._id)
+                      ? `Remove ${item.title} from wishlist`
+                      : `Add ${item.title} to wishlist`
+                  }
+                  title={wishlistIds.includes(item._id) ? "Remove from wishlist" : "Add to wishlist"}
+                >
+                  {wishlistIds.includes(item._id) ? "♥" : "♡"}
+                </button>
+
                 {/* Golden corner flourishes */}
                 <div className="corner top-left"></div>
                 <div className="corner top-right"></div>

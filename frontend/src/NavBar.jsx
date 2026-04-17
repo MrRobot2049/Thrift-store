@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { getWishlistItems, subscribeToWishlist } from "./wishlistStorage";
 import "./navbar.css";
 
 const API_BASE_URL =
@@ -15,6 +16,13 @@ export default function NavBar() {
   const notificationRef = useRef(null);
   const token = localStorage.getItem("token");
   const unreadCount = notifications.filter((entry) => !entry.isRead).length;
+  const [wishlistCount, setWishlistCount] = useState(() => getWishlistItems().length);
+
+  useEffect(() => {
+    return subscribeToWishlist((items) => {
+      setWishlistCount(items.length);
+    });
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -142,6 +150,17 @@ export default function NavBar() {
               className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}
             >
               My Auctions
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              to="/wishlist"
+              className={({ isActive }) =>
+                `nav-link nav-wishlist-link${isActive ? " nav-link-active" : ""}`
+              }
+            >
+              Wishlist
+              {wishlistCount > 0 && <span className="nav-badge">{wishlistCount}</span>}
             </NavLink>
           </li>
           <li className="nav-item">

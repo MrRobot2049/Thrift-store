@@ -12,6 +12,7 @@ import SubcategoryList from "./SubcategoryList";
 import CategoryStepRouter from "./CategoryStepRouter";
 import PostAdView from "./PostAdView";
 import ChatPage from "./ChatPage";
+import Wishlist from "./Wishlist";
 
 function Dashboard() {
   const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -45,6 +46,7 @@ function App() {
         <Route path="/auctions/:id" element={<AuctionDetail />} />
         <Route path="/chat/:auctionId" element={<ChatPage />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/categories" element={<CategoryList />} />
         <Route path="/category/:categoryId" element={<SubcategoryList />} />
         <Route path="/category/:categoryId/:subcategoryId" element={<CategoryStepRouter />} />
@@ -55,5 +57,3 @@ function App() {
 }
 
 export default App;
-
-

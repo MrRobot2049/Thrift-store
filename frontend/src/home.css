@@ -37,6 +37,26 @@
   margin: 0;
 }
 
+.wishlist-summary-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  background: rgba(250, 246, 240, 0.92);
+  border: 1px solid rgba(139, 105, 20, 0.25);
+  color: #5c452e;
+  text-decoration: none;
+  font-weight: 600;
+  box-shadow: 0 10px 24px rgba(90, 60, 20, 0.08);
+}
+
+.wishlist-summary-link:hover {
+  color: #2b1d0f;
+  transform: translateY(-1px);
+}
+
 /* ── Sell Banner ── */
 .sell-banner-wrapper {
   max-width: 1000px;
@@ -236,6 +256,35 @@
     0 16px 28px rgba(20, 10, 5, 0.55),
     inset 0 0 10px rgba(0,0,0,0.7),
     inset 0 1px 1px rgba(255,255,255,0.15);
+}
+
+.wishlist-toggle {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 8;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(115, 90, 38, 0.55);
+  border-radius: 999px;
+  background: rgba(250, 246, 240, 0.96);
+  color: #7b5a18;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(20, 10, 5, 0.22);
+  transition: transform 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.wishlist-toggle:hover {
+  transform: scale(1.05);
+  background: #fff8ec;
+}
+
+.wishlist-toggle.active {
+  background: linear-gradient(180deg, #f7d5cd 0%, #eb9f8d 100%);
+  color: #7e1f12;
+  box-shadow: 0 10px 20px rgba(126, 31, 18, 0.25);
 }
 
 /* Inner canvas/paper */
