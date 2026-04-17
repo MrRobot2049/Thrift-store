@@ -1,6 +1,7 @@
 const Notification = require("../models/Notification");
 const User = require("../models/User");
 const { getIO } = require("../utils/socket");
+const { sendMail } = require("../utils/email");
 
 function doesSubscriptionMatchItem(subscription, item) {
   if (!subscription || !item) {
@@ -27,11 +28,41 @@ function buildItemPathLabel(item) {
     .join(" / ");
 }
 
+function buildItemUrl(itemId) {
+  const baseUrl = (process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/$/, "");
+  return `${baseUrl}/items/${itemId}`;
+}
+
+async function sendWishlistEmail(user, item, seller) {
+  const itemPath = buildItemPathLabel(item);
+  const itemUrl = buildItemUrl(item._id);
+  const lines = [
+    `Hi ${user.name || "there"},`,
+    "",
+    `A new auction listing was posted in a subcategory you are watching: ${itemPath}.`,
+    "",
+    `Product: ${item.title}`,
+    `Category Path: ${itemPath}`,
+    `Starting Price: INR ${item.askingPrice}`,
+    `Seller: ${seller?.name || "Unknown seller"}`,
+    `Description: ${item.description || "No description provided."}`,
+    `View Listing: ${itemUrl}`,
+    "",
+    "You are receiving this because you added this subcategory to your wishlist notifications.",
+  ];
+
+  await sendMail({
+    to: user.email,
+    subject: `New auction in ${itemPath}: ${item.title}`,
+    text: lines.join("\n"),
+  });
+}
+
 async function notifyWishlistSubscribers(item) {
   const watchers = await User.find({
     _id: { $ne: item.seller },
     wishlistSubscriptions: { $exists: true, $ne: [] },
-  }).select("_id wishlistSubscriptions");
+  }).select("_id name email wishlistSubscriptions");
 
   const matchingUsers = watchers.filter((user) =>
     user.wishlistSubscriptions.some((subscription) =>
@@ -44,6 +75,7 @@ async function notifyWishlistSubscribers(item) {
   }
 
   const message = `New listing in ${buildItemPathLabel(item)}: ${item.title}`;
+  const seller = await User.findById(item.seller).select("name email");
 
   const notifications = await Notification.insertMany(
     matchingUsers.map((user) => ({
@@ -55,6 +87,16 @@ async function notifyWishlistSubscribers(item) {
       type: "subcategory_listing",
       message,
     }))
+  );
+
+  await Promise.all(
+    matchingUsers.map(async (user) => {
+      try {
+        await sendWishlistEmail(user, item, seller);
+      } catch (error) {
+        console.error(`Failed to send wishlist email to ${user.email}:`, error.message);
+      }
+    })
   );
 
   const io = getIO();

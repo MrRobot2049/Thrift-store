@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
+const { sendMail } = require("../utils/email");
 
 const COLLEGE_DOMAIN = "@iitrpr.ac.in";
 const OTP_EXPIRY_MINUTES = 10;
@@ -12,25 +12,8 @@ const isCollegeEmail = (email = "") =>
 const generateOtp = () =>
   String(Math.floor(100000 + Math.random() * 900000));
 
-const createTransporter = () => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    throw new Error("Email credentials are missing in environment variables.");
-  }
-
-  return nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE || "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-};
-
 const sendOtpEmail = async (email, otp) => {
-  const transporter = createTransporter();
-
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+  await sendMail({
     to: email,
     subject: "Thrift Store OTP Verification",
     text: `Your OTP is ${otp}. It is valid for ${OTP_EXPIRY_MINUTES} minutes.`,
