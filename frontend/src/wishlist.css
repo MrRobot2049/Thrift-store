@@ -36,3 +36,54 @@
 .wishlist-card {
   position: relative;
 }
+
+.wishlist-subscription-list {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.wishlist-subscription-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.4rem;
+  border-radius: 18px;
+  background: rgba(250, 246, 240, 0.9);
+  border: 1px solid rgba(139, 105, 20, 0.15);
+  box-shadow: 0 12px 24px rgba(90, 60, 20, 0.08);
+}
+
+.wishlist-subscription-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: #8d7456;
+  margin-bottom: 0.4rem;
+}
+
+.wishlist-subscription-title {
+  font-size: 1.15rem;
+  color: #3e280f;
+}
+
+.wishlist-remove-btn {
+  border: 1px solid rgba(126, 31, 18, 0.22);
+  border-radius: 999px;
+  padding: 0.8rem 1.1rem;
+  background: #fff7f4;
+  color: #7e1f12;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .wishlist-subscription-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -184,8 +184,9 @@ body {
 
 .category-item-content {
   display: flex;
-  align-items: center;
-  gap: 24px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
 }
 
 .category-icon {
@@ -219,6 +220,33 @@ body {
 
 .category-item:hover .category-name {
   color: #1c150e; /* Even darker on hover */
+}
+
+.category-meta {
+  font-size: 0.88rem;
+  color: #8d7456;
+}
+
+.category-watch-btn {
+  border: 1px solid rgba(139, 105, 20, 0.28);
+  border-radius: 999px;
+  padding: 0.65rem 0.95rem;
+  background: rgba(244, 238, 230, 0.95);
+  color: #5c452e;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.category-watch-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(74, 56, 38, 0.1);
+}
+
+.category-watch-btn.active {
+  background: linear-gradient(180deg, #f7d5cd 0%, #eb9f8d 100%);
+  color: #7e1f12;
+  border-color: rgba(126, 31, 18, 0.22);
 }
 
 .category-arrow {

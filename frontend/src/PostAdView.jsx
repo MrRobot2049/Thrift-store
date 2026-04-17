@@ -139,6 +139,11 @@ const ItemView = () => {
           title: title,
           description: description,
           category: categoryKey || "Other", // Using top-level category mapping
+          categoryId: categoryId || "",
+          subcategory: formattedSubcategoryName,
+          subcategorySlug: subcategoryId || "",
+          nestedSubcategory: formattedNestedSubcategoryName,
+          nestedSubcategorySlug: nestedSubcategoryId || "",
           image: imageUrls[0], // Main image is the first one
           images: imageUrls, // Store all images
           askingPrice: parseFloat(adPrice),

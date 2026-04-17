@@ -1,5 +1,41 @@
 const mongoose = require("mongoose");
 
+const wishlistSubscriptionSchema = new mongoose.Schema(
+  {
+    categoryId: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    categoryName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    subcategorySlug: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    subcategoryName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    nestedSubcategorySlug: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    nestedSubcategoryName: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+  },
+  { _id: false }
+);
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -31,6 +67,11 @@ const userSchema = new mongoose.Schema(
     otpExpiresAt: {
       type: Date,
       default: null,
+    },
+
+    wishlistSubscriptions: {
+      type: [wishlistSubscriptionSchema],
+      default: [],
     },
   },
   { timestamps: true }

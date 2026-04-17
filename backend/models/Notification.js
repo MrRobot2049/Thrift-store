@@ -18,7 +18,7 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["auction_won"],
+      enum: ["auction_won", "subcategory_listing"],
       required: true,
     },
     message: {
@@ -34,6 +34,15 @@ const notificationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-notificationSchema.index({ user: 1, type: 1, auction: 1 }, { unique: true });
+notificationSchema.index(
+  { user: 1, type: 1, auction: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      type: "auction_won",
+      auction: { $exists: true },
+    },
+  }
+);
 
 module.exports = mongoose.model("Notification", notificationSchema);

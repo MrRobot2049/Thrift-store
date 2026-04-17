@@ -18,6 +18,36 @@ const itemSchema = new mongoose.Schema(
       required: true,
     },
 
+    categoryId: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    subcategory: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    subcategorySlug: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    nestedSubcategory: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    nestedSubcategorySlug: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
     image: {
       type: String, // Cloudinary URL
       required: true,

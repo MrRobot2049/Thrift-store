@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { getWishlistItems, subscribeToWishlist } from "./wishlistStorage";
+import { fetchWishlistSubscriptions, subscribeToWishlist } from "./wishlistStorage";
 import "./navbar.css";
 
 const API_BASE_URL =
@@ -16,13 +16,39 @@ export default function NavBar() {
   const notificationRef = useRef(null);
   const token = localStorage.getItem("token");
   const unreadCount = notifications.filter((entry) => !entry.isRead).length;
-  const [wishlistCount, setWishlistCount] = useState(() => getWishlistItems().length);
+  const [wishlistCount, setWishlistCount] = useState(0);
 
   useEffect(() => {
-    return subscribeToWishlist((items) => {
-      setWishlistCount(items.length);
+    let isMounted = true;
+
+    const loadSubscriptions = async () => {
+      try {
+        if (!token) {
+          return;
+        }
+
+        const subscriptions = await fetchWishlistSubscriptions();
+        if (isMounted) {
+          setWishlistCount(subscriptions.length);
+        }
+      } catch (err) {
+        // Ignore nav count fetch issues.
+      }
+    };
+
+    loadSubscriptions();
+
+    const unsubscribe = subscribeToWishlist((subscriptions) => {
+      if (isMounted) {
+        setWishlistCount(subscriptions.length);
+      }
     });
-  }, []);
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, [token]);
 
   useEffect(() => {
     let isMounted = true;
@@ -212,7 +238,13 @@ export default function NavBar() {
                     {notifications.map((entry) => (
                       <li key={entry._id} className="notification-item">
                         <Link
-                          to={entry.auction?._id ? `/chat/${entry.auction._id}` : "/profile"}
+                          to={
+                            entry.auction?._id
+                              ? `/chat/${entry.auction._id}`
+                              : entry.item?._id
+                              ? `/items/${entry.item._id}`
+                              : "/profile"
+                          }
                           className="notification-link"
                           onClick={() => setIsNotificationOpen(false)}
                         >

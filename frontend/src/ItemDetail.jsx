@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import NavBar from "./NavBar";
-import { isItemWishlisted, subscribeToWishlist, toggleWishlistItem } from "./wishlistStorage";
 import "./itemDetail.css";
 
 const API_BASE_URL =
@@ -42,7 +41,6 @@ export default function ItemDetail() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [isWishlisted, setIsWishlisted] = useState(false);
 
   const token = localStorage.getItem("token");
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -54,18 +52,11 @@ export default function ItemDetail() {
         if (!res.ok) throw new Error("Could not load item");
         const data = await res.json();
         setItem(data);
-        setIsWishlisted(isItemWishlisted(data._id));
       } catch (err) {
         setError(err.message);
       }
     };
     fetchItem();
-  }, [id]);
-
-  useEffect(() => {
-    return subscribeToWishlist((wishlistItems) => {
-      setIsWishlisted(wishlistItems.some((wishlistItem) => wishlistItem._id === id));
-    });
   }, [id]);
 
   // Fetch auction details and bids
@@ -189,10 +180,6 @@ export default function ItemDetail() {
 
   const isOwnItem = item.seller?._id === currentUser.id;
   const auctionEnded = auction && (new Date(auction.endTime) <= new Date() || !auction.isActive);
-  const handleWishlistToggle = () => {
-    const updatedItems = toggleWishlistItem(item);
-    setIsWishlisted(updatedItems.some((wishlistItem) => wishlistItem._id === item._id));
-  };
 
   return (
     <div className="item-detail-page">
@@ -237,18 +224,12 @@ export default function ItemDetail() {
 
               {/* Details Section */}
               <div className="details-section">
-                <div className="item-title-row">
-                  <h1 className="item-title">{item.title}</h1>
-                  <button
-                    type="button"
-                    className={`detail-wishlist-btn ${isWishlisted ? "active" : ""}`}
-                    onClick={handleWishlistToggle}
-                  >
-                    {isWishlisted ? "♥ Saved" : "♡ Save"}
-                  </button>
-                </div>
+                <h1 className="item-title">{item.title}</h1>
                 <p className="item-category">
-                  {item.category?.toUpperCase() || "ITEM"}
+                  {[item.category, item.subcategory, item.nestedSubcategory]
+                    .filter(Boolean)
+                    .join(" / ")
+                    .toUpperCase() || "ITEM"}
                 </p>
                 <p className="seller-info">Seller: <strong>{item.seller?.name || "Unknown"}</strong></p>
 

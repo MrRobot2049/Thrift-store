@@ -1,5 +1,6 @@
 const Item = require("../models/Item");
 const Auction = require("../models/Auction");
+const { notifyWishlistSubscribers } = require("../services/wishlistNotifications");
 
 // CREATE ITEM (Auction only)
 exports.createItem = async (req, res) => {
@@ -8,13 +9,28 @@ exports.createItem = async (req, res) => {
       title,
       description,
       category,
+      categoryId,
+      subcategory,
+      subcategorySlug,
+      nestedSubcategory,
+      nestedSubcategorySlug,
       image,
       images,
       askingPrice,
       biddingDuration,
     } = req.body;
 
-    if (!title || !description || !category || !image || !askingPrice || !biddingDuration) {
+    if (
+      !title ||
+      !description ||
+      !category ||
+      !categoryId ||
+      !subcategory ||
+      !subcategorySlug ||
+      !image ||
+      !askingPrice ||
+      !biddingDuration
+    ) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -22,12 +38,19 @@ exports.createItem = async (req, res) => {
       title,
       description,
       category,
+      categoryId,
+      subcategory,
+      subcategorySlug,
+      nestedSubcategory: nestedSubcategory || "",
+      nestedSubcategorySlug: nestedSubcategorySlug || "",
       image,
       images: images || [image],
       askingPrice: parseFloat(askingPrice),
       biddingDuration: parseInt(biddingDuration),
       seller: req.user.id,
     });
+
+    await notifyWishlistSubscribers(item);
 
     res.status(201).json(item);
   } catch (err) {
@@ -125,7 +148,19 @@ exports.updateItem = async (req, res) => {
     }
 
     // allow updating a few fields
-    const updates = ["title", "description", "price", "category", "image", "status"];
+    const updates = [
+      "title",
+      "description",
+      "price",
+      "category",
+      "categoryId",
+      "subcategory",
+      "subcategorySlug",
+      "nestedSubcategory",
+      "nestedSubcategorySlug",
+      "image",
+      "status",
+    ];
     updates.forEach((field) => {
       if (req.body[field] !== undefined) {
         item[field] = req.body[field];

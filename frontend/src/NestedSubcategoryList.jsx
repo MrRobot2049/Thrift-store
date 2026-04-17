@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   findCategoryById,
@@ -7,16 +7,44 @@ import {
   getSubcategoryName,
   slugify,
 } from "./categoryHelpers";
+import {
+  fetchWishlistSubscriptions,
+  formatWishlistLabel,
+  isWishlistedSubscription,
+  toggleWishlistSubscription,
+} from "./wishlistStorage";
 import "./CategoryStyles.css";
 
 const NestedSubcategoryList = () => {
   const { categoryId, subcategoryId } = useParams();
   const navigate = useNavigate();
+  const [wishlistSubscriptions, setWishlistSubscriptions] = useState([]);
 
   const categoryDetails = findCategoryById(categoryId);
+  const categoryName = categoryDetails?.categoryKey || "";
   const category = categoryDetails?.category;
   const subcategory = findSubcategoryBySlug(category, subcategoryId);
   const nestedSubcategories = getNestedSubcategories(subcategory);
+
+  useEffect(() => {
+    fetchWishlistSubscriptions()
+      .then(setWishlistSubscriptions)
+      .catch(() => null);
+  }, []);
+
+  const handleWishlistToggle = async (event, subscription) => {
+    event.stopPropagation();
+
+    try {
+      const updatedSubscriptions = await toggleWishlistSubscription(
+        subscription,
+        wishlistSubscriptions
+      );
+      setWishlistSubscriptions(updatedSubscriptions);
+    } catch (error) {
+      console.error("Failed to update wishlist subscription:", error);
+    }
+  };
 
   if (!category || !subcategory || nestedSubcategories.length === 0) {
     return (
@@ -57,6 +85,15 @@ const NestedSubcategoryList = () => {
           <ul className="category-list">
             {nestedSubcategories.map((nestedSubcategory, index) => {
               const nestedSubcategorySlug = slugify(nestedSubcategory);
+              const subscription = {
+                categoryId,
+                categoryName,
+                subcategorySlug: subcategoryId,
+                subcategoryName: getSubcategoryName(subcategory),
+                nestedSubcategorySlug,
+                nestedSubcategoryName: nestedSubcategory,
+              };
+              const isWatching = isWishlistedSubscription(subscription, wishlistSubscriptions);
 
               return (
                 <li
@@ -70,7 +107,15 @@ const NestedSubcategoryList = () => {
                 >
                   <div className="category-item-content">
                     <span className="category-name">{nestedSubcategory}</span>
+                    <span className="category-meta">{formatWishlistLabel(subscription)}</span>
                   </div>
+                  <button
+                    type="button"
+                    className={`category-watch-btn ${isWatching ? "active" : ""}`}
+                    onClick={(event) => handleWishlistToggle(event, subscription)}
+                  >
+                    {isWatching ? "Watching" : "Watch"}
+                  </button>
                   <span className="category-arrow">
                     <svg
                       width="20"

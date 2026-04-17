@@ -1,79 +1,119 @@
-const WISHLIST_STORAGE_KEY = "wishlistItems";
 const WISHLIST_EVENT = "wishlist-updated";
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
 
-function canUseStorage() {
-  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
-}
-
-function notifyWishlistChanged(items) {
+function notifyWishlistChanged(subscriptions) {
   if (typeof window !== "undefined") {
     window.dispatchEvent(
       new CustomEvent(WISHLIST_EVENT, {
-        detail: { items },
+        detail: { subscriptions },
       })
     );
   }
 }
 
-function normalizeWishlistItem(item) {
+function getAuthHeaders() {
   return {
-    _id: item._id,
-    title: item.title || "Untitled",
-    description: item.description || "",
-    category: item.category || "Uncategorized",
-    askingPrice: item.askingPrice || "",
-    image: item.image || "",
-    images: Array.isArray(item.images) ? item.images : [],
-    seller: item.seller || null,
+    "Content-Type": "application/json",
+    Authorization: localStorage.getItem("token"),
   };
 }
 
-export function getWishlistItems() {
-  if (!canUseStorage()) {
-    return [];
-  }
-
-  try {
-    const raw = window.localStorage.getItem(WISHLIST_STORAGE_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    console.error("Failed to read wishlist:", error);
-    return [];
-  }
+function normalizeWishlistSubscription(subscription) {
+  return {
+    categoryId: subscription.categoryId,
+    categoryName: subscription.categoryName,
+    subcategorySlug: subscription.subcategorySlug,
+    subcategoryName: subscription.subcategoryName,
+    nestedSubcategorySlug: subscription.nestedSubcategorySlug || "",
+    nestedSubcategoryName: subscription.nestedSubcategoryName || "",
+  };
 }
 
-function saveWishlistItems(items) {
-  if (!canUseStorage()) {
-    return;
+export function buildWishlistKey(subscription) {
+  return [
+    subscription.categoryId,
+    subscription.subcategorySlug,
+    subscription.nestedSubcategorySlug || "",
+  ].join("::");
+}
+
+export function formatWishlistLabel(subscription) {
+  return [
+    subscription.categoryName,
+    subscription.subcategoryName,
+    subscription.nestedSubcategoryName,
+  ]
+    .filter(Boolean)
+    .join(" / ");
+}
+
+export function isWishlistedSubscription(subscription, subscriptions) {
+  const targetKey = buildWishlistKey(subscription);
+  return subscriptions.some((entry) => buildWishlistKey(entry) === targetKey);
+}
+
+export async function fetchWishlistSubscriptions() {
+  const response = await fetch(`${API_BASE_URL}/users/me/wishlist-subscriptions`, {
+    credentials: "include",
+    headers: {
+      Authorization: localStorage.getItem("token"),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to load wishlist subscriptions");
   }
 
-  window.localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(items));
-  notifyWishlistChanged(items);
+  const subscriptions = await response.json();
+  const normalized = Array.isArray(subscriptions)
+    ? subscriptions.map(normalizeWishlistSubscription)
+    : [];
+
+  notifyWishlistChanged(normalized);
+  return normalized;
 }
 
-export function getWishlistIds() {
-  return getWishlistItems().map((item) => item._id).filter(Boolean);
-}
+export async function addWishlistSubscription(subscription) {
+  const response = await fetch(`${API_BASE_URL}/users/me/wishlist-subscriptions`, {
+    method: "POST",
+    credentials: "include",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(normalizeWishlistSubscription(subscription)),
+  });
 
-export function isItemWishlisted(itemId) {
-  return getWishlistIds().includes(itemId);
-}
-
-export function toggleWishlistItem(item) {
-  if (!item?._id) {
-    return [];
+  if (!response.ok) {
+    throw new Error("Failed to save wishlist subscription");
   }
 
-  const wishlistItems = getWishlistItems();
-  const exists = wishlistItems.some((wishlistItem) => wishlistItem._id === item._id);
+  const subscriptions = (await response.json()).map(normalizeWishlistSubscription);
+  notifyWishlistChanged(subscriptions);
+  return subscriptions;
+}
 
-  const updatedItems = exists
-    ? wishlistItems.filter((wishlistItem) => wishlistItem._id !== item._id)
-    : [normalizeWishlistItem(item), ...wishlistItems];
+export async function removeWishlistSubscription(subscription) {
+  const response = await fetch(`${API_BASE_URL}/users/me/wishlist-subscriptions`, {
+    method: "DELETE",
+    credentials: "include",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(normalizeWishlistSubscription(subscription)),
+  });
 
-  saveWishlistItems(updatedItems);
-  return updatedItems;
+  if (!response.ok) {
+    throw new Error("Failed to remove wishlist subscription");
+  }
+
+  const subscriptions = (await response.json()).map(normalizeWishlistSubscription);
+  notifyWishlistChanged(subscriptions);
+  return subscriptions;
+}
+
+export async function toggleWishlistSubscription(subscription, subscriptions = []) {
+  if (isWishlistedSubscription(subscription, subscriptions)) {
+    return removeWishlistSubscription(subscription);
+  }
+
+  return addWishlistSubscription(subscription);
 }
 
 export function subscribeToWishlist(callback) {
@@ -82,8 +122,8 @@ export function subscribeToWishlist(callback) {
   }
 
   const handleChange = (event) => {
-    const items = event.detail?.items;
-    callback(Array.isArray(items) ? items : getWishlistItems());
+    const subscriptions = event.detail?.subscriptions;
+    callback(Array.isArray(subscriptions) ? subscriptions : []);
   };
 
   window.addEventListener(WISHLIST_EVENT, handleChange);

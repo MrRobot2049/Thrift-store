@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NavBar from "./NavBar";
-import { getWishlistIds, subscribeToWishlist, toggleWishlistItem } from "./wishlistStorage";
+import { fetchWishlistSubscriptions, subscribeToWishlist } from "./wishlistStorage";
 import "./home.css";
 
 const API_BASE_URL =
@@ -13,7 +13,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [sortBy, setSortBy] = useState("newest");
-  const [wishlistIds, setWishlistIds] = useState(() => getWishlistIds());
+  const [wishlistCount, setWishlistCount] = useState(0);
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   const formatCurrency = (value) => {
@@ -61,18 +61,27 @@ export default function Home() {
   }, [currentUser.id]);
 
   useEffect(() => {
-    return subscribeToWishlist((wishlistItems) => {
-      setWishlistIds(wishlistItems.map((item) => item._id));
+    let isMounted = true;
+
+    fetchWishlistSubscriptions()
+      .then((subscriptions) => {
+        if (isMounted) {
+          setWishlistCount(subscriptions.length);
+        }
+      })
+      .catch(() => null);
+
+    const unsubscribe = subscribeToWishlist((subscriptions) => {
+      if (isMounted) {
+        setWishlistCount(subscriptions.length);
+      }
     });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, []);
-
-  const handleWishlistToggle = (event, item) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const updatedItems = toggleWishlistItem(item);
-    setWishlistIds(updatedItems.map((wishlistItem) => wishlistItem._id));
-  };
 
   const displayedItems = items
     .filter((item) => {
@@ -121,7 +130,7 @@ export default function Home() {
         <h1>Browse Items for Auction</h1>
         <p>Select any item to view details and place your bid</p>
         <Link to="/wishlist" className="wishlist-summary-link">
-          Wishlist: {wishlistIds.length} saved item{wishlistIds.length === 1 ? "" : "s"}
+          Wishlist: {wishlistCount} watched subcategor{wishlistCount === 1 ? "y" : "ies"}
         </Link>
       </div>
 
@@ -192,20 +201,6 @@ export default function Home() {
               style={{ "--stagger-index": index }}
             >
               <div className="wood-card">
-                <button
-                  type="button"
-                  className={`wishlist-toggle ${wishlistIds.includes(item._id) ? "active" : ""}`}
-                  onClick={(event) => handleWishlistToggle(event, item)}
-                  aria-label={
-                    wishlistIds.includes(item._id)
-                      ? `Remove ${item.title} from wishlist`
-                      : `Add ${item.title} to wishlist`
-                  }
-                  title={wishlistIds.includes(item._id) ? "Remove from wishlist" : "Add to wishlist"}
-                >
-                  {wishlistIds.includes(item._id) ? "♥" : "♡"}
-                </button>
-
                 {/* Golden corner flourishes */}
                 <div className="corner top-left"></div>
                 <div className="corner top-right"></div>
@@ -231,7 +226,11 @@ export default function Home() {
                   {/* Card Content */}
                   <div className="wood-content">
                     <h3 className="wood-title">{item.title || "Untitled"}</h3>
-                    <p className="wood-category">{item.category || "Uncategorized"}</p>
+                    <p className="wood-category">
+                      {[item.category, item.subcategory, item.nestedSubcategory]
+                        .filter(Boolean)
+                        .join(" / ") || "Uncategorized"}
+                    </p>
                     <p className="wood-description">{item.description || "No description"}</p>
                     
                     <div className="wood-footer">
