@@ -16,6 +16,7 @@ const bidRoutes = require("./routes/bidRoutes");
 const userRoutes = require("./routes/userRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const chatRoutes = require("./routes/chatRoutes");
+const purchaseRoutes = require("./routes/purchaseRoutes");
 const { closeExpiredAuctions } = require("./controllers/auctionController");
 const { setIO } = require("./utils/socket");
 const registerChatSocket = require("./socket/chatSocket");
@@ -45,11 +46,22 @@ const corsOptions = {
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   origin: (origin, callback) => {
-    // Allow requests with no origin (e.g., curl, server-to-server)
+    // Allow requests with no origin (e.g., curl, server-to-server, React proxy)
     if (!origin) return callback(null, true);
 
     const normalizedOrigin = normalizeOrigin(origin);
-    if (allowedOrigins.has(normalizedOrigin)) {
+
+    // Allow any localhost/127.0.0.1 origin (any port — covers React dev server & proxy)
+    if (
+      normalizedOrigin.startsWith("http://localhost") ||
+      normalizedOrigin.startsWith("http://127.0.0.1") ||
+      allowedOrigins.has(normalizedOrigin)
+    ) {
+      return callback(null, normalizedOrigin);
+    }
+
+    // In development, also allow the LAN IP (React's network URL)
+    if (process.env.NODE_ENV !== "production") {
       return callback(null, normalizedOrigin);
     }
 
@@ -94,10 +106,19 @@ app.use("/api/bids", bidRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/chats", chatRoutes);
+app.use("/api/purchases", purchaseRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
   res.send("API is running...");
+});
+
+// ── Global JSON error handler (must be last, after all routes) ──
+// Without this, Express's default handler returns HTML, which breaks JSON.parse in the browser.
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err.message || err);
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({ message: err.message || "Internal server error" });
 });
 
 const PORT = process.env.PORT || 5000;

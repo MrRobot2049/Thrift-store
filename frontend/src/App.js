@@ -13,6 +13,13 @@ import CategoryStepRouter from "./CategoryStepRouter";
 import PostAdView from "./PostAdView";
 import ChatPage from "./ChatPage";
 import Wishlist from "./Wishlist";
+import Merchandise from "./Merchandise";
+import SellHub from "./SellHub";
+import MerchandiseForm from "./forms/MerchandiseForm";
+import ComedyForm from "./forms/ComedyForm";
+import EventForm from "./forms/EventForm";
+import ConcertForm from "./forms/ConcertForm";
+import MyTickets from "./MyTickets";
 
 function Dashboard() {
   const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -47,6 +54,13 @@ function App() {
         <Route path="/chat/:auctionId" element={<ChatPage />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/merchandise" element={<Merchandise />} />
+        <Route path="/sell-hub" element={<SellHub />} />
+        <Route path="/sell/merchandise" element={<MerchandiseForm />} />
+        <Route path="/sell/comedy" element={<ComedyForm />} />
+        <Route path="/sell/event" element={<EventForm />} />
+        <Route path="/sell/concert" element={<ConcertForm />} />
+        <Route path="/tickets" element={<MyTickets />} />
         <Route path="/categories" element={<CategoryList />} />
         <Route path="/category/:categoryId" element={<SubcategoryList />} />
         <Route path="/category/:categoryId/:subcategoryId" element={<CategoryStepRouter />} />

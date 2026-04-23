@@ -1,5 +1,11 @@
 const mongoose = require("mongoose");
 
+const ticketTierSchema = new mongoose.Schema({
+  tierName: { type: String },
+  quantity: { type: Number },
+  price: { type: Number },
+}, { _id: false });
+
 const itemSchema = new mongoose.Schema(
   {
     title: {
@@ -18,21 +24,28 @@ const itemSchema = new mongoose.Schema(
       required: true,
     },
 
+    // listingType distinguishes auction items from merchandise/events
+    listingType: {
+      type: String,
+      enum: ["auction", "merchandise", "comedy", "event", "concert"],
+      default: "auction",
+    },
+
     categoryId: {
       type: String,
-      required: true,
+      default: "",
       trim: true,
     },
 
     subcategory: {
       type: String,
-      required: true,
+      default: "",
       trim: true,
     },
 
     subcategorySlug: {
       type: String,
-      required: true,
+      default: "",
       trim: true,
     },
 
@@ -49,23 +62,22 @@ const itemSchema = new mongoose.Schema(
     },
 
     image: {
-      type: String, // Cloudinary URL
-      required: true,
+      type: String,
+      default: "",
     },
 
     images: {
-      type : [String],
+      type: [String],
       default: [],
     },
 
     askingPrice: {
       type: Number,
-      required: true,
+      default: 0,
     },
 
     biddingDuration: {
-      type: Number, 
-      required: true,
+      type: Number,
       default: 24,
     },
 
@@ -79,6 +91,42 @@ const itemSchema = new mongoose.Schema(
       type: String,
       enum: ["available", "sold", "ended"],
       default: "available",
+    },
+
+    // ── Merchandise-specific fields ──
+    // sizeInventory holds per-size stock: [{ size: "S", quantity: 20 }, ...]
+    sizeInventory: {
+      type: [{ size: String, quantity: { type: Number, default: 0 } }],
+      default: [],
+    },
+    // Keep sizes[] as a derived list (populated on save for backward compat)
+    sizes: {
+      type: [String],
+      default: [],
+    },
+    designVariation: {
+      type: String,
+      default: "",
+    },
+    quantity: {
+      type: Number,
+      default: 0,
+    },
+
+    // ── Comedy / Event / Concert ──
+    venue: { type: String, default: "" },
+    eventDate: { type: String, default: "" },
+    headlineArtist: { type: String, default: "" },
+    organizerContact: { type: String, default: "" },
+    eventCapacity: { type: Number, default: 0 },
+    vipExperience: { type: String, default: "" },
+    ticketTiers: {
+      type: [ticketTierSchema],
+      default: [],
+    },
+    registeredCount: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true }

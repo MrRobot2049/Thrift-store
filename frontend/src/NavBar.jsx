@@ -162,12 +162,22 @@ export default function NavBar() {
         <ul className="nav-menu">
           <li className="nav-item">
             <NavLink
+              to="/merchandise"
+              className={({ isActive }) =>
+                `nav-link metallic-button${isActive ? " nav-link-active-metallic" : ""}`
+              }
+            >
+              Merch & Tickets
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
               to="/categories"
               className={({ isActive }) =>
                 `nav-link metallic-button${isActive ? " nav-link-active-metallic" : ""}`
               }
             >
-              Sell
+              Sell Item
             </NavLink>
           </li>
           <li className="nav-item">
@@ -187,6 +197,14 @@ export default function NavBar() {
             >
               Wishlist
               {wishlistCount > 0 && <span className="nav-badge">{wishlistCount}</span>}
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              to="/tickets"
+              className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}
+            >
+              My Tickets
             </NavLink>
           </li>
           <li className="nav-item">

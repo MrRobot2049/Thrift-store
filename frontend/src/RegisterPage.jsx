@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./register.css";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "/api";
 
 export default function RegisterPage() {
   const navigate = useNavigate();

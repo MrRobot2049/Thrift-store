@@ -1,0 +1,415 @@
+/* sellForms.css - Premium form styles */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+
+.premium-forms-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem;
+  background: radial-gradient(circle at center, #1a1a24 0%, #0d0d12 100%); /* Default dark backdrop */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle background stars/sparkles for all premium pages */
+.premium-forms-container::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    radial-gradient(circle at 15% 20%, rgba(218, 190, 130, 0.15) 1px, transparent 2px),
+    radial-gradient(circle at 85% 80%, rgba(218, 190, 130, 0.15) 1px, transparent 2px),
+    radial-gradient(circle at 50% 10%, rgba(218, 190, 130, 0.1) 2px, transparent 3px),
+    radial-gradient(circle at 80% 30%, rgba(218, 190, 130, 0.15) 1px, transparent 2px),
+    radial-gradient(circle at 20% 70%, rgba(218, 190, 130, 0.1) 2px, transparent 3px);
+  background-size: 150px 150px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.back-btn {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  color: #dabe82;
+  background: none;
+  border: 1px solid rgba(218, 190, 130, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s;
+  z-index: 10;
+}
+
+.back-btn:hover {
+  background: rgba(218, 190, 130, 0.1);
+  border-color: #dabe82;
+}
+
+/* ─── HUB PAGE ─── */
+.hub-wrapper {
+  max-width: 1000px;
+  width: 100%;
+  text-align: center;
+  z-index: 1;
+}
+
+.hub-title {
+  font-family: 'Cinzel', serif;
+  font-size: 3rem;
+  color: #dabe82;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 10px rgba(218, 190, 130, 0.2);
+}
+
+.hub-subtitle {
+  color: #a38f78;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1rem;
+  margin-bottom: 3rem;
+}
+
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+}
+
+.hub-card {
+  position: relative;
+  padding: 2rem 1.5rem;
+  border-radius: 12px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.hub-card:hover {
+  transform: translateY(-10px);
+}
+
+.hub-card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.hub-card-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
+}
+
+/* Hub Card Variations */
+.card-merch {
+  background: linear-gradient(145deg, #fdfbf7, #f0e6d2);
+  border: 2px solid #dabe82;
+}
+.card-merch .hub-card-title { color: #2b1d0f; }
+
+.card-comedy {
+  background: linear-gradient(145deg, #161a2b, #0b0e17);
+  border: 1px solid rgba(218, 190, 130, 0.4);
+  box-shadow: inset 0 0 20px rgba(218, 190, 130, 0.05);
+}
+.card-comedy .hub-card-title { color: #dabe82; }
+
+.card-event {
+  background: #fdfaf3;
+  border: 1px dashed #7a5e3d;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.card-event .hub-card-title { color: #4a3826; }
+
+.card-concert {
+  background: linear-gradient(145deg, #2a1b14, #140b08);
+  border: 2px solid #b87333; /* Copper */
+}
+.card-concert .hub-card-title { color: #e6a87c; }
+
+/* ─── FORM BASICS ─── */
+.premium-form-box {
+  width: 100%;
+  max-width: 800px;
+  padding: 3rem 4rem;
+  border-radius: 8px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+  position: relative;
+  z-index: 1;
+}
+
+.form-header-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: -50px auto 1rem;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.premium-title {
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 2.2rem;
+  margin-bottom: 2.5rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.premium-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.premium-input, .premium-select, .premium-textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border-radius: 4px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+
+.premium-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.premium-submit {
+  display: block;
+  margin: 3rem auto 0;
+  padding: 0.8rem 2.5rem;
+  border-radius: 50px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.premium-submit:hover {
+  transform: translateY(-2px);
+}
+
+/* Image Upload Area */
+.premium-upload-area {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.upload-box {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1.2rem;
+}
+
+
+/* ─── 1. MERCHANDISE THEME (Light Parchment & Gold) ─── */
+.theme-merch {
+  background: #fdfbf7;
+  border: 12px solid #fff;
+  outline: 2px solid #dabe82;
+  outline-offset: -10px;
+}
+.theme-merch::before {
+  content: "";
+  position: absolute;
+  top: 14px; left: 14px; right: 14px; bottom: 14px;
+  border: 1px solid #dabe82;
+  pointer-events: none;
+}
+.theme-merch .form-header-icon {
+  background: #2b1d0f;
+  color: #dabe82;
+  border: 2px solid #dabe82;
+}
+.theme-merch .premium-title { color: #2b1d0f; }
+.theme-merch .premium-label { color: #4a3826; }
+.theme-merch .premium-input, .theme-merch .premium-select, .theme-merch .premium-textarea {
+  background: #faf6eb;
+  border: 1px solid #dabe82;
+  color: #2b1d0f;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+.theme-merch .premium-input:focus { border-color: #a88b50; }
+.theme-merch .upload-box {
+  background: #faf6eb;
+  border: 1px dashed #dabe82;
+  color: #dabe82;
+}
+.theme-merch .premium-submit {
+  background: #2b1d0f;
+  color: #dabe82;
+  border: 2px solid #2b1d0f;
+  box-shadow: 0 4px 15px rgba(43, 29, 15, 0.2);
+}
+
+
+/* ─── 2. COMEDY THEME (Dark Navy & Glowing Gold) ─── */
+.theme-comedy {
+  background: #111424;
+  border: 1px solid #dabe82;
+  box-shadow: 0 0 30px rgba(218, 190, 130, 0.15), inset 0 0 20px rgba(0,0,0,0.5);
+  border-radius: 12px;
+}
+.theme-comedy .form-header-icon {
+  background: #111424;
+  color: #dabe82;
+  border: 1px solid #dabe82;
+  box-shadow: 0 0 15px rgba(218, 190, 130, 0.4);
+}
+.theme-comedy .premium-title { color: #dabe82; text-shadow: 0 0 10px rgba(218, 190, 130, 0.3); }
+.theme-comedy .premium-label { color: #a38f78; }
+.theme-comedy .premium-input, .theme-comedy .premium-select {
+  background: #0a0c16;
+  border: 1px solid rgba(218, 190, 130, 0.3);
+  color: #e0d0b0;
+}
+.theme-comedy .premium-input:focus { border-color: #dabe82; box-shadow: 0 0 8px rgba(218, 190, 130, 0.2); }
+.theme-comedy .upload-box-wide {
+  width: 100%;
+  height: 80px;
+  border: 1px dashed rgba(218, 190, 130, 0.4);
+  color: #dabe82;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.theme-comedy .premium-submit {
+  background: linear-gradient(135deg, #dabe82, #a88b50);
+  color: #111424;
+  border: none;
+  box-shadow: 0 0 20px rgba(218, 190, 130, 0.4);
+}
+
+
+/* ─── 3. EVENT THEME (Torn Parchment) ─── */
+.theme-event-container {
+  background: #1a2235; /* Dark blue background for contrast */
+}
+.theme-event {
+  background: #fdfaf3;
+  border: none;
+  border-radius: 0;
+  /* Simulating jagged edges with a repeating linear gradient */
+  background-image: 
+    linear-gradient(to right, #612711 5px, transparent 5px),
+    linear-gradient(to left, #fdfaf3 10px, transparent 10px);
+  box-shadow: -5px 0 15px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.3);
+  border-left: 8px solid #612711; /* Dark leather spine look */
+}
+.theme-event .form-header-icon {
+  background: #fdfaf3;
+  color: #2b1d0f;
+  border: none;
+  border-radius: 0;
+  width: auto; height: auto; padding: 10px;
+  box-shadow: none;
+}
+.theme-event .premium-title { font-family: 'Playfair Display', serif; color: #2b1d0f; font-weight: 400; font-size: 2rem;}
+.theme-event .premium-label { color: #2b1d0f; font-weight: 500;}
+.theme-event .premium-input, .theme-event .premium-select {
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed #7a5e3d;
+  color: #2b1d0f;
+  border-radius: 0;
+  padding: 0.5rem 0;
+}
+.theme-event .premium-input:focus { border-bottom: 1px solid #2b1d0f; }
+.theme-event .premium-submit {
+  background: #2b1d0f;
+  color: #fdfaf3;
+  border: none;
+  border-radius: 20px;
+}
+
+
+/* ─── 4. CONCERT THEME (Dark Copper) ─── */
+.theme-concert {
+  background: #140d0a;
+  border: 4px solid #8e5a3c;
+  border-radius: 16px;
+  box-shadow: 0 0 0 10px #2a1710, 0 15px 40px rgba(0,0,0,0.8);
+  position: relative;
+}
+.theme-concert::after {
+  content: "";
+  position: absolute;
+  top: -4px; left: -20px; bottom: -4px; width: 40px;
+  background: linear-gradient(to bottom, #d4956a, #8e5a3c, #593522);
+  border-radius: 10px 0 0 10px;
+}
+.theme-concert::before {
+  content: "";
+  position: absolute;
+  top: -4px; right: -20px; bottom: -4px; width: 40px;
+  background: linear-gradient(to bottom, #d4956a, #8e5a3c, #593522);
+  border-radius: 0 10px 10px 0;
+}
+.theme-concert .form-header-icon {
+  background: #140d0a;
+  color: #d4956a;
+  border: 1px solid #d4956a;
+  z-index: 2; position: relative;
+}
+.theme-concert .premium-title { color: #e6b89c; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+.theme-concert .premium-label { color: #c49a7c; }
+.theme-concert .premium-input, .theme-concert .premium-select {
+  background: transparent;
+  border: 1px solid #593522;
+  color: #fff;
+  border-radius: 4px;
+}
+.theme-concert .premium-input:focus { border-color: #d4956a; }
+.theme-concert .premium-submit {
+  background: linear-gradient(180deg, #d4956a, #8e5a3c);
+  color: #140d0a;
+  border: none;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 768px) {
+  .form-row { flex-direction: column; gap: 1rem; }
+  .premium-form-box { padding: 2rem 1.5rem; }
+  .theme-concert::before, .theme-concert::after { display: none; }
+}

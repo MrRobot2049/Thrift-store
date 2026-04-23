@@ -134,6 +134,17 @@ export default function Home() {
         </Link>
       </div>
 
+      <div className="sell-banner-wrapper">
+        <div className="sell-banner" style={{ background: "linear-gradient(135deg, #fcfaf8, #f4eee6)" }}>
+          <div className="sell-banner-text">
+            🎓 Looking for college merchandise or event tickets?
+          </div>
+          <Link to="/merchandise" className="metallic-button banner-btn" style={{ textDecoration: 'none' }}>
+            Browse Merch & Tickets
+          </Link>
+        </div>
+      </div>
+
       <div className="search-filter-bar">
         <div className="search-input-wrapper">
           <input
