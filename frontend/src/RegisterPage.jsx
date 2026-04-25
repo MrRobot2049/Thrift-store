@@ -125,8 +125,12 @@ export default function RegisterPage() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2 className="auth-title">Create Account</h2>
-        <p className="auth-subtitle">Join us today! It takes only few steps.</p>
+        <h2 className="auth-title">
+          <span className="auth-title-welcome">Welcome to</span>
+          <br />
+          Thrift Store
+        </h2>
+        <p className="auth-subtitle">Create your account</p>
 
         {error && (
           <div className="auth-alert error">
@@ -294,12 +298,12 @@ export default function RegisterPage() {
             disabled={loading}
             className="auth-button"
           >
-            {loading ? "Please wait..." : otpSent ? "Verify OTP" : "Send OTP"}
+            {loading ? "Please wait..." : otpSent ? "Verify OTP" : "Let's Begin"}
           </button>
         </form>
 
         <p className="auth-footer">
-          Already have an account? <Link to="/" className="auth-link">Login</Link>
+          Already have an account? <Link to="/" className="auth-link">Login here.</Link>
         </p>
       </div>
     </div>

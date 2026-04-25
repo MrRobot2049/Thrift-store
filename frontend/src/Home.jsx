@@ -263,11 +263,7 @@ export default function Home() {
               style={{ "--stagger-index": index }}
             >
               <div className="wood-card">
-                {/* Golden corner flourishes */}
-                <div className="corner top-left"></div>
-                <div className="corner top-right"></div>
-                <div className="corner bottom-left"></div>
-                <div className="corner bottom-right"></div>
+
 
                 <div className="wood-card-inner">
                   {/* Image Frame */}

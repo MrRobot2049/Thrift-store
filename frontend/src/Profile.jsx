@@ -93,17 +93,8 @@ export default function Profile() {
 
         <div className="profile-grid">
           
-          {/* LEFT COLUMN: Single "Listed Items" Tab */}
+          {/* LEFT COLUMN: Listed Items */}
           <div className="left-section">
-            <div className="tabs-header">
-              <button 
-                className="tab-btn active"
-                style={{ cursor: "default" }}
-              >
-                Listed Items ({itemsListed.length})
-              </button>
-            </div>
-
             <div className="tab-content">
               <div className="cards-grid">
                 {itemsListed.length === 0 ? <p style={{ color: '#888' }}>No items listed yet.</p> : null}
@@ -115,13 +106,13 @@ export default function Profile() {
                   >
                     <div className="card-header">
                       <span className="card-title" title={it.title}>{it.title}</span>
-                      <span className="badge badge-available">
-                        {String(it.status).toLowerCase() === 'available' ? 'AVAILABLE' : 'SOLD'}
-                      </span>
                     </div>
                     <div className="card-image-wrapper">
                       <img src={getImage(it)} alt={it.title} className="card-image" />
                     </div>
+                    <span className="badge-available-custom">
+                        {String(it.status).toLowerCase() === 'available' ? 'Available' : 'Sold'}
+                    </span>
                     <div className="card-footer profile-card-gap">
                       {it.askingPrice && <span className="card-bid">Price <span className="card-bid-val">₹{it.askingPrice}</span></span>}
                     </div>
@@ -137,34 +128,33 @@ export default function Profile() {
             {wonAuctions.length === 0 ? (
               <p style={{ color: '#888', marginBottom: '3rem' }}>No purchases yet.</p>
             ) : (
-              wonAuctions.map(au => (
-                <div key={au._id}>
-                  <Link to={`/auctions/${au._id}`} className="won-card">
-                    <div className="won-img-wrapper">
-                      <img src={getImage(au.item)} alt={au.item?.title} className="won-img" />
-                    </div>
-                    <div className="won-text-block">
-                      <span className="won-title">{au.item?.title || "Item"}</span>
-                      <span className="won-desc">Purchase completed</span>
-                      <div className="won-amount">₹{au.soldPrice}</div>
-                    </div>
-                    <div className="won-score-box">
-                      <div className="won-score-numbers">76<br/>57<br/>52<br/>43</div>
-                      <div className="won-trophy">🏆</div>
-                    </div>
-                  </Link>
-
-                  <div style={{ marginTop: "0.6rem", marginBottom: "1.2rem" }}>
-                    <Link
-                      to={`/chat/${au._id}`}
-                      className="badge badge-live"
-                      style={{ textDecoration: "none", padding: "0.45rem 0.85rem", display: "inline-block" }}
-                    >
-                      Chat With Seller
+              <div className="cards-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem', marginBottom: '3rem' }}>
+                {wonAuctions.map(au => (
+                  <div key={au._id}>
+                    <Link to={`/auctions/${au._id}`} className="won-card">
+                      <div className="won-img-wrapper">
+                        🏆
+                      </div>
+                      <div className="won-text-block">
+                        <span className="won-title">{au.item?.title || "Item"}</span>
+                        <span className="won-desc">Purchase completed</span>
+                        <div className="won-numbers">76 87 92 43</div>
+                        <div className="won-amount">₹{au.soldPrice}</div>
+                      </div>
                     </Link>
+
+                    <div style={{ marginTop: "0.2rem", marginBottom: "1rem", textAlign: "right" }}>
+                      <Link
+                        to={`/chat/${au._id}`}
+                        className="badge-available-custom"
+                        style={{ textDecoration: "none", fontSize: "0.7rem", padding: "0.2rem 0.6rem", display: "inline-block" }}
+                      >
+                        Chat
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
 
             <h3 className="section-heading" style={{ marginTop: '3rem' }}>My Bids</h3>
