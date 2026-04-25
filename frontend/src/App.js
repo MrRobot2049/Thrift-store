@@ -52,6 +52,7 @@ function App() {
         <Route path="/upload" element={<UploadItem />} />
         <Route path="/items/:id" element={<ItemDetail />} />
         <Route path="/auctions/:id" element={<AuctionDetail />} />
+        <Route path="/chat/purchase/:purchaseId" element={<ChatPage />} />
         <Route path="/chat/:auctionId" element={<ChatPage />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/wishlist" element={<Wishlist />} />

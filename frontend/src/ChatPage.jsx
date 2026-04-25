@@ -6,11 +6,14 @@ import "./chat.css";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
 const SOCKET_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
+const CLOUDINARY_UPLOAD_URL = process.env.REACT_APP_CLOUDINARY_UPLOAD_URL;
+const CLOUDINARY_PRESET = process.env.REACT_APP_CLOUDINARY_PRESET;
 
 export default function ChatPage() {
-  const { auctionId } = useParams();
+  const { auctionId, purchaseId } = useParams();
   const token = localStorage.getItem("token");
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const isPurchaseChat = Boolean(purchaseId);
 
   const [room, setRoom] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -18,9 +21,13 @@ export default function ChatPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [socketReady, setSocketReady] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
 
   const socketRef = useRef(null);
   const bottomRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const otherParty = useMemo(() => {
     if (!room || !currentUser?.id) {
@@ -40,7 +47,11 @@ export default function ChatPage() {
         setLoading(true);
         setError("");
 
-        const res = await fetch(`${API_BASE_URL}/chats/auction/${auctionId}`, {
+        const endpoint = isPurchaseChat
+          ? `${API_BASE_URL}/chats/purchase/${purchaseId}`
+          : `${API_BASE_URL}/chats/auction/${auctionId}`;
+
+        const res = await fetch(endpoint, {
           credentials: "include",
           headers: { Authorization: token },
         });
@@ -65,7 +76,7 @@ export default function ChatPage() {
       setLoading(false);
       setError("Please log in to access chat");
     }
-  }, [auctionId, token]);
+  }, [auctionId, purchaseId, isPurchaseChat, token]);
 
   useEffect(() => {
     if (!token || !room) {
@@ -81,7 +92,11 @@ export default function ChatPage() {
 
     socket.on("connect", () => {
       setSocketReady(true);
-      socket.emit("chat:joinAuction", { auctionId });
+      if (isPurchaseChat) {
+        socket.emit("chat:joinPurchase", { purchaseId });
+      } else {
+        socket.emit("chat:joinAuction", { auctionId });
+      }
     });
 
     socket.on("disconnect", () => {
@@ -104,36 +119,111 @@ export default function ChatPage() {
     return () => {
       socket.disconnect();
     };
-  }, [auctionId, room, token]);
+  }, [auctionId, purchaseId, isPurchaseChat, room, token]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const uploadImageToCloudinary = async (file) => {
+    if (!file) {
+      return "";
+    }
+
+    if (!CLOUDINARY_UPLOAD_URL || !CLOUDINARY_PRESET) {
+      throw new Error("Image upload is not configured");
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_PRESET);
+
+    const res = await fetch(CLOUDINARY_UPLOAD_URL, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to upload image");
+    }
+
+    const data = await res.json();
+    return data.secure_url || "";
+  };
+
+  const handleImagePick = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file");
+      return;
+    }
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    setError("");
+  };
+
+  const clearSelectedImage = () => {
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    setImageFile(null);
+    setImagePreview("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const sendMessage = async (e) => {
     e.preventDefault();
-    if (!draft.trim()) {
+    const text = draft.trim();
+    if (!text && !imageFile) {
       return;
     }
 
-    if (socketRef.current && socketReady) {
-      socketRef.current.emit("chat:sendMessage", {
-        auctionId,
-        text: draft,
-      });
-      setDraft("");
-      return;
-    }
+    setError("");
+    setSending(true);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/chats/auction/${auctionId}/messages`, {
+      const image = imageFile ? await uploadImageToCloudinary(imageFile) : "";
+      const payload = {
+        text,
+        image,
+      };
+
+      if (socketRef.current && socketReady) {
+        if (isPurchaseChat) {
+          socketRef.current.emit("chat:sendPurchaseMessage", {
+            purchaseId,
+            ...payload,
+          });
+        } else {
+          socketRef.current.emit("chat:sendMessage", {
+            auctionId,
+            ...payload,
+          });
+        }
+        setDraft("");
+        clearSelectedImage();
+        return;
+      }
+
+      const endpoint = isPurchaseChat
+        ? `${API_BASE_URL}/chats/purchase/${purchaseId}/messages`
+        : `${API_BASE_URL}/chats/auction/${auctionId}/messages`;
+
+      const res = await fetch(endpoint, {
         method: "POST",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
           Authorization: token,
         },
-        body: JSON.stringify({ text: draft }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -143,8 +233,11 @@ export default function ChatPage() {
 
       setMessages((prev) => [...prev, data]);
       setDraft("");
+      clearSelectedImage();
     } catch (err) {
       setError(err.message || "Failed to send message");
+    } finally {
+      setSending(false);
     }
   };
 
@@ -155,7 +248,7 @@ export default function ChatPage() {
       <div className="chat-shell">
         <div className="chat-head">
           <div>
-            <h1>Auction Chat</h1>
+            <h1>{isPurchaseChat ? "Purchase Chat" : "Auction Chat"}</h1>
             <p>
               {room?.item?.title || "Auction"}
               {otherParty?.name ? ` • Chatting with ${otherParty.name}` : ""}
@@ -184,7 +277,12 @@ export default function ChatPage() {
                       <span>{message.sender?.name || "User"}</span>
                       <span>{new Date(message.createdAt).toLocaleString()}</span>
                     </div>
-                    <p>{message.text}</p>
+                    {message.text ? <p>{message.text}</p> : null}
+                    {message.image ? (
+                      <a href={message.image} target="_blank" rel="noreferrer" className="chat-image-link">
+                        <img src={message.image} alt="Chat attachment" className="chat-image" />
+                      </a>
+                    ) : null}
                   </div>
                 );
               })}
@@ -193,18 +291,44 @@ export default function ChatPage() {
 
             <form className="chat-input" onSubmit={sendMessage}>
               <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImagePick}
+                style={{ display: "none" }}
+              />
+              <button
+                type="button"
+                className="chat-attach-btn"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={sending}
+              >
+                Image
+              </button>
+              <input
                 type="text"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder="Type your message"
+                placeholder={imageFile ? "Add a caption (optional)" : "Type your message"}
                 maxLength={1000}
               />
-              <button type="submit">Send</button>
+              <button type="submit" disabled={sending}>
+                {sending ? "Sending..." : "Send"}
+              </button>
             </form>
+            {imagePreview && (
+              <div className="chat-preview-row">
+                <img src={imagePreview} alt="Selected" className="chat-preview-image" />
+                <button type="button" onClick={clearSelectedImage} className="chat-clear-preview-btn">
+                  Remove
+                </button>
+              </div>
+            )}
           </>
         )}
 
         <div className="chat-back">
+          <Link to="/tickets">My Tickets</Link>
           <Link to="/seller-dashboard">Seller Dashboard</Link>
           <Link to="/profile">Profile</Link>
         </div>

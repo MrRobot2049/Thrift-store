@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import NavBar from "./NavBar";
 import "./itemDetail.css";
 
@@ -37,9 +37,13 @@ export default function ItemDetail() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [itemBuyers, setItemBuyers] = useState([]);
+  const [buyersLoading, setBuyersLoading] = useState(false);
+  const [buyersError, setBuyersError] = useState("");
 
   const token = localStorage.getItem("token");
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const currentUserId = currentUser.id || currentUser._id || "";
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/items/${id}`)
@@ -58,6 +62,52 @@ export default function ItemDetail() {
     const interval = setInterval(fetchAuction, 5000);
     return () => clearInterval(interval);
   }, [id, item]);
+
+  useEffect(() => {
+    if (!token || !item) {
+      return;
+    }
+
+    const sellerId = typeof item.seller === "object" ? item.seller?._id : item.seller;
+    const ownListing = Boolean(
+      currentUserId &&
+      sellerId &&
+      sellerId === currentUserId
+    );
+    const ticketListing = ["comedy", "concert", "event"].includes(item.listingType);
+
+    if (!ownListing || !ticketListing) {
+      setItemBuyers([]);
+      setBuyersError("");
+      setBuyersLoading(false);
+      return;
+    }
+
+    const fetchItemBuyers = async () => {
+      try {
+        setBuyersLoading(true);
+        setBuyersError("");
+
+        const res = await fetch(`${API_BASE_URL}/purchases/item/${id}/buyers`, {
+          credentials: "include",
+          headers: { Authorization: token },
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to load buyers");
+        }
+
+        setItemBuyers(Array.isArray(data.purchases) ? data.purchases : []);
+      } catch (err) {
+        setBuyersError(err.message || "Failed to load buyers");
+      } finally {
+        setBuyersLoading(false);
+      }
+    };
+
+    fetchItemBuyers();
+  }, [id, item, token, currentUserId]);
 
   // ── Buy Now ──
   const handleBuyNow = async () => {
@@ -125,9 +175,10 @@ export default function ItemDetail() {
   const allImages = (item.images && item.images.length > 0) ? item.images : item.image ? [item.image] : [];
   const displayImage = allImages[selectedImage] || allImages[0];
   const sellerId = typeof item.seller === "object" ? item.seller?._id : item.seller;
-  const isOwnItem = Boolean(currentUser && (currentUser.id || currentUser._id) && sellerId && (sellerId === currentUser.id || sellerId === currentUser._id));
+  const isOwnItem = Boolean(currentUserId && sellerId && sellerId === currentUserId);
   const auctionEnded = auction && (new Date(auction.endTime) <= new Date() || !auction.isActive);
   const isNonAuction = NON_AUCTION_TYPES.includes(item.listingType);
+  const isTicketListing = ["comedy", "concert", "event"].includes(item.listingType);
 
   // Type-aware out-of-stock check
   const computeOutOfStock = () => {
@@ -346,6 +397,63 @@ export default function ItemDetail() {
                       )
                     )}
                     {isOwnItem && <div className="status-notice warning">This is your own listing.</div>}
+                    {isOwnItem && isTicketListing && (
+                      <div style={{ marginTop: "1rem", padding: "0.9rem", border: "1px solid #dabe82", borderRadius: 10, background: "#fff8eb" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.6rem" }}>
+                          <h3 style={{ margin: 0, fontSize: "1rem", color: "#3a2a17" }}>Ticket Buyers</h3>
+                          <span style={{ fontSize: "0.8rem", color: "#7a5e3d" }}>{itemBuyers.length} purchase(s)</span>
+                        </div>
+
+                        {buyersLoading && <p style={{ margin: 0, color: "#7a5e3d" }}>Loading buyers...</p>}
+                        {!buyersLoading && buyersError && <p style={{ margin: 0, color: "#b03a2e" }}>{buyersError}</p>}
+
+                        {!buyersLoading && !buyersError && itemBuyers.length === 0 && (
+                          <p style={{ margin: 0, color: "#7a5e3d" }}>No confirmed ticket purchases yet.</p>
+                        )}
+
+                        {!buyersLoading && !buyersError && itemBuyers.length > 0 && (
+                          <div style={{ display: "flex", flexDirection: "column", gap: "0.55rem" }}>
+                            {itemBuyers.map((purchase) => (
+                              <div
+                                key={purchase._id}
+                                style={{
+                                  border: "1px solid #ead9bc",
+                                  borderRadius: 8,
+                                  padding: "0.55rem 0.65rem",
+                                  background: "#fffdf8",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  gap: "0.75rem",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <div>
+                                  <div style={{ fontWeight: 700, color: "#2b1d0f" }}>
+                                    {purchase.buyer?.name || "Buyer"}
+                                  </div>
+                                  <div style={{ fontSize: "0.78rem", color: "#7a5e3d" }}>
+                                    {purchase.buyer?.email || "No email"}
+                                  </div>
+                                  <div style={{ fontSize: "0.75rem", color: "#8f7a5e", marginTop: 2 }}>
+                                    Qty: {purchase.quantity}
+                                    {purchase.tierName ? ` • Tier: ${purchase.tierName}` : ""}
+                                    {purchase.size ? ` • Size: ${purchase.size}` : ""}
+                                    {` • ₹${Number(purchase.totalPrice || 0).toLocaleString("en-IN")}`}
+                                  </div>
+                                </div>
+                                <Link
+                                  to={`/chat/purchase/${purchase._id}`}
+                                  className="vintage-btn"
+                                  style={{ padding: "0.4rem 0.75rem", fontSize: "0.78rem", whiteSpace: "nowrap" }}
+                                >
+                                  Chat Buyer
+                                </Link>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </>
                 ) : (
                   /* ── AUCTION UI ── */

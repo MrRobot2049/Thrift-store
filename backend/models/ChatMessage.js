@@ -11,7 +11,13 @@ const chatMessageSchema = new mongoose.Schema(
     auction: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Auction",
-      required: true,
+      required: false,
+      index: true,
+    },
+    purchase: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Purchase",
+      required: false,
       index: true,
     },
     sender: {
@@ -22,9 +28,15 @@ const chatMessageSchema = new mongoose.Schema(
     },
     text: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
       maxlength: 1000,
+      default: "",
+    },
+    image: {
+      type: String,
+      default: "",
+      trim: true,
     },
   },
   { timestamps: true }

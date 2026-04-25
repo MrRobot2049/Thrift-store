@@ -104,6 +104,13 @@ export default function MyTickets() {
                   
                   <div className="ticket-footer">
                     <span>Purchased on {new Date(p.createdAt).toLocaleDateString()}</span>
+                    <Link
+                      to={`/chat/purchase/${p._id}`}
+                      className="vintage-btn"
+                      style={{ marginLeft: "0.75rem", padding: "0.35rem 0.7rem", fontSize: "0.78rem" }}
+                    >
+                      Chat with Seller
+                    </Link>
                   </div>
                 </div>
               </div>
