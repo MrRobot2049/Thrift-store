@@ -3,11 +3,14 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { sendMail } = require("../utils/email");
 
-const COLLEGE_DOMAIN = "@iitrpr.ac.in";
 const OTP_EXPIRY_MINUTES = 10;
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
+  .split(",")
+  .map((entry) => entry.trim().toLowerCase())
+  .filter(Boolean);
 
-const isCollegeEmail = (email = "") =>
-  email.toLowerCase().endsWith(COLLEGE_DOMAIN);
+const isAdminEmail = (email = "") =>
+  ADMIN_EMAILS.includes(email.toLowerCase());
 
 const generateOtp = () =>
   String(Math.floor(100000 + Math.random() * 900000));
@@ -24,25 +27,22 @@ const sendOtpEmail = async (email, otp) => {
 exports.requestOtp = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    const normalizedEmail = String(email || "").toLowerCase();
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Name, email and password are required" });
-    }
-
-    if (!isCollegeEmail(email)) {
-      return res.status(400).json({
-        message: `Only ${COLLEGE_DOMAIN} emails are allowed`,
-      });
     }
 
     if (password.length < 6) {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser && existingUser.isVerified) {
       return res.status(400).json({ message: "User already exists. Please login." });
     }
+
+    const roleForEmail = isAdminEmail(normalizedEmail) ? "admin" : "user";
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const otp = generateOtp();
@@ -51,13 +51,15 @@ exports.requestOtp = async (req, res) => {
     if (existingUser) {
       existingUser.name = name;
       existingUser.password = hashedPassword;
+      existingUser.role = existingUser.role === "admin" ? "admin" : roleForEmail;
       existingUser.otpCode = otp;
       existingUser.otpExpiresAt = otpExpiresAt;
       await existingUser.save();
     } else {
       await User.create({
         name,
-        email: email.toLowerCase(),
+        email: normalizedEmail,
+        role: roleForEmail,
         password: hashedPassword,
         isVerified: false,
         otpCode: otp,
@@ -65,10 +67,10 @@ exports.requestOtp = async (req, res) => {
       });
     }
 
-    await sendOtpEmail(email.toLowerCase(), otp);
+    await sendOtpEmail(normalizedEmail, otp);
 
     return res.status(200).json({
-      message: "OTP sent to your college email",
+      message: "OTP sent to your email",
     });
   } catch (error) {
     console.error(error);
@@ -147,12 +149,21 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    const resolvedRole =
+      user.role === "admin" || isAdminEmail(user.email) ? "admin" : "user";
+
+    if (user.role !== resolvedRole) {
+      user.role = resolvedRole;
+      await user.save();
+    }
+
     // Create session
     req.session.userId = user._id;
+    req.session.userRole = resolvedRole;
 
     // Keep returning token for backward compatibility
     const token = jwt.sign(
-      { id: user._id },
+      { id: user._id, role: resolvedRole },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -164,6 +175,7 @@ exports.login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: resolvedRole,
       },
     });
   } catch (error) {

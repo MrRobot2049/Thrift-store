@@ -4,6 +4,9 @@ const Purchase = require("../models/Purchase");
 const User = require("../models/User");
 const sendTicketEmail = require("../utils/sendTicketEmail");
 const { notifyWishlistSubscribers } = require("../services/wishlistNotifications");
+
+const ADMIN_ONLY_LISTING_TYPES = ["merchandise", "comedy", "event", "concert"];
+
 // CREATE ITEM (supports auction + merchandise/comedy/event/concert)
 exports.createItem = async (req, res) => {
   try {
@@ -43,6 +46,17 @@ exports.createItem = async (req, res) => {
     const type = listingType || "auction";
     if (type === "auction" && !image) {
       return res.status(400).json({ message: "An image is required for auction items" });
+    }
+
+    if (ADMIN_ONLY_LISTING_TYPES.includes(type)) {
+      const postingUser = await User.findById(req.user.id).select("role");
+      if (!postingUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      if ((postingUser.role || "user") !== "admin") {
+        return res.status(403).json({ message: "Only admins can post merchandise or show tickets" });
+      }
     }
 
     const item = await Item.create({

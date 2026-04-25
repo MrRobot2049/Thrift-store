@@ -52,11 +52,6 @@ export default function RegisterPage() {
         return;
       }
 
-      if (!form.email.toLowerCase().endsWith("@iitrpr.ac.in")) {
-        setError("Only @iitrpr.ac.in email addresses are allowed.");
-        return;
-      }
-
       if (form.password.length < 6) {
         setError("Password must be at least 6 characters.");
         return;
@@ -86,7 +81,7 @@ export default function RegisterPage() {
         }
 
         setOtpSent(true);
-        setSuccess("OTP sent to your college email. Enter it below to complete registration.");
+        setSuccess("OTP sent to your email. Enter it below to complete registration.");
       } catch (err) {
         setError("Network error while sending OTP");
       } finally {

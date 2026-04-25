@@ -34,6 +34,8 @@ export default function Merchandise() {
   const [sortBy, setSortBy] = useState("newest");
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState("");
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const isAdmin = currentUser.role === "admin";
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -81,13 +83,19 @@ export default function Merchandise() {
       <div className="merch-header">
         <h1>College Merchandise & Tickets</h1>
         <p>Buy and sell exclusive college merch, fest tickets, and more.</p>
-        <Link to="/sell-hub" className="sell-merch-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          Sell Merch or Tickets
-        </Link>
+        {isAdmin ? (
+          <Link to="/sell-hub" className="sell-merch-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Sell Merch or Tickets
+          </Link>
+        ) : (
+          <p style={{ color: "#6f5a3f", marginTop: "0.75rem", fontSize: "0.92rem" }}>
+            Merchandise and show-ticket posting is available to admin users only.
+          </p>
+        )}
       </div>
 
       <div className="merch-content-wrapper">
@@ -167,7 +175,13 @@ export default function Merchandise() {
                 No items listed yet
               </h3>
               <p style={{ color: "#7a5e3d", marginBottom: "1.5rem" }}>Be the first to list merchandise or tickets!</p>
-              <Link to="/sell-hub" className="sell-merch-btn">+ List an Item</Link>
+              {isAdmin ? (
+                <Link to="/sell-hub" className="sell-merch-btn">+ List an Item</Link>
+              ) : (
+                <p style={{ color: "#6f5a3f", marginBottom: 0 }}>
+                  Ask an admin to publish the first listing.
+                </p>
+              )}
             </div>
           )}
 

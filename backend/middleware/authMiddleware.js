@@ -3,7 +3,10 @@ const jwt = require("jsonwebtoken");
 const protect = (req, res, next) => {
   // Prefer session-based auth (cookie)
   if (req.session && req.session.userId) {
-    req.user = { id: req.session.userId };
+    req.user = {
+      id: req.session.userId,
+      role: req.session.userRole || "user",
+    };
     return next();
   }
 
@@ -19,7 +22,10 @@ const protect = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    req.user = {
+      ...decoded,
+      role: decoded.role || "user",
+    };
     next();
   } catch (error) {
     res.status(401).json({ message: "Unauthorized" });
