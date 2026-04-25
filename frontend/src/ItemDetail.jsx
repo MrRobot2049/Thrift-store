@@ -180,6 +180,16 @@ export default function ItemDetail() {
   const isNonAuction = NON_AUCTION_TYPES.includes(item.listingType);
   const isTicketListing = ["comedy", "concert", "event"].includes(item.listingType);
 
+  // Check if current user is the highest bidder
+  const highestBidderId =
+    typeof auction?.highestBidder === "object"
+      ? auction?.highestBidder?._id
+      : auction?.highestBidder;
+  const myId = currentUser?.id || currentUser?._id;
+  const isHighestBidder = Boolean(
+    auction && auction.currentHighestBid > 0 && highestBidderId && myId && highestBidderId === myId
+  );
+
   // Type-aware out-of-stock check
   const computeOutOfStock = () => {
     if (item.status === "sold") return true;
@@ -483,22 +493,37 @@ export default function ItemDetail() {
                       <p className="description-text">{item.description}</p>
                     </div>
                     {!isOwnItem && !auctionEnded && (
-                      <div className="bid-form-box">
-                        <div className="bid-form-header">Place Your Bid</div>
-                        <div className="bid-form-body">
-                          <div className="form-group">
-                            <label>Bid Amount</label>
-                            <input type="number" className="vintage-input"
-                              placeholder={`Min: ₹${auction ? Math.max(parseFloat(item.askingPrice || 0), auction.currentHighestBid) + 1 : parseFloat(item.askingPrice || 0)}`}
-                              value={bidAmount} onChange={e => setBidAmount(e.target.value)} disabled={loading} />
+                      isHighestBidder ? (
+                        <div className="highest-bidder-notice">
+                          <div className="hbn-icon">🏆</div>
+                          <div className="hbn-content">
+                            <div className="hbn-title">You're the Highest Bidder!</div>
+                            <div className="hbn-sub">
+                              Your bid of <strong>₹{auction.currentHighestBid}</strong> is currently leading.
+                            </div>
+                            <div className="hbn-sub" style={{ marginTop: "0.35rem", color: "#b45309" }}>
+                              🔒 You cannot outbid yourself. Wait for someone else to place a higher bid.
+                            </div>
                           </div>
-                          <button onClick={placeBid} disabled={loading} className="vintage-btn block-btn">
-                            {loading ? "Placing bid..." : "Start Auction & Bid"}
-                          </button>
-                          {error && <p className="form-msg error">{error}</p>}
-                          {message && <p className="form-msg success">{message}</p>}
                         </div>
-                      </div>
+                      ) : (
+                        <div className="bid-form-box">
+                          <div className="bid-form-header">Place Your Bid</div>
+                          <div className="bid-form-body">
+                            <div className="form-group">
+                              <label>Bid Amount</label>
+                              <input type="number" className="vintage-input"
+                                placeholder={`Min: ₹${auction ? Math.max(parseFloat(item.askingPrice || 0), auction.currentHighestBid) + 1 : parseFloat(item.askingPrice || 0)}`}
+                                value={bidAmount} onChange={e => setBidAmount(e.target.value)} disabled={loading} />
+                            </div>
+                            <button onClick={placeBid} disabled={loading} className="vintage-btn block-btn">
+                              {loading ? "Placing bid..." : "Start Auction & Bid"}
+                            </button>
+                            {error && <p className="form-msg error">{error}</p>}
+                            {message && <p className="form-msg success">{message}</p>}
+                          </div>
+                        </div>
+                      )
                     )}
                     {isOwnItem && <div className="status-notice warning">This is your own listing. You cannot bid on it.</div>}
                     {auctionEnded && <div className="status-notice ended">This auction has ended.</div>}
