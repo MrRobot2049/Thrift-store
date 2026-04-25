@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import NavBar from "./NavBar";
 import { fetchWishlistSubscriptions, subscribeToWishlist } from "./wishlistStorage";
@@ -12,6 +12,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSubcategory, setSelectedSubcategory] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [wishlistCount, setWishlistCount] = useState(0);
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -83,6 +84,27 @@ export default function Home() {
     };
   }, []);
 
+  const availableSubcategories = useMemo(() => {
+    const scopedItems = selectedCategory
+      ? items.filter(
+          (item) => item.category?.toLowerCase() === selectedCategory.toLowerCase()
+        )
+      : items;
+
+    const subcategorySet = new Set();
+
+    scopedItems.forEach((item) => {
+      if (item.subcategory) {
+        subcategorySet.add(item.subcategory.trim());
+      }
+      if (item.nestedSubcategory) {
+        subcategorySet.add(item.nestedSubcategory.trim());
+      }
+    });
+
+    return Array.from(subcategorySet).sort((left, right) => left.localeCompare(right));
+  }, [items, selectedCategory]);
+
   const displayedItems = items
     .filter((item) => {
       const matchesSearch =
@@ -94,7 +116,12 @@ export default function Home() {
         selectedCategory === "" ||
         item.category?.toLowerCase() === selectedCategory.toLowerCase();
 
-      return matchesSearch && matchesCategory;
+      const matchesSubcategory =
+        selectedSubcategory === "" ||
+        item.subcategory?.toLowerCase() === selectedSubcategory.toLowerCase() ||
+        item.nestedSubcategory?.toLowerCase() === selectedSubcategory.toLowerCase();
+
+      return matchesSearch && matchesCategory && matchesSubcategory;
     })
     .sort((a, b) => {
       const titleA = (a.title || "").toLowerCase();
@@ -113,11 +140,15 @@ export default function Home() {
       return createdB - createdA;
     });
 
-  const hasActiveFilters = searchQuery.trim() !== "" || selectedCategory !== "";
+  const hasActiveFilters =
+    searchQuery.trim() !== "" ||
+    selectedCategory !== "" ||
+    selectedSubcategory !== "";
 
   const clearFilters = () => {
     setSearchQuery("");
     setSelectedCategory("");
+    setSelectedSubcategory("");
     setSortBy("newest");
   };
 
@@ -161,7 +192,10 @@ export default function Home() {
           <select
             className="wood-category-select"
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
+            onChange={(e) => {
+              setSelectedCategory(e.target.value);
+              setSelectedSubcategory("");
+            }}
             aria-label="Filter by category"
           >
             <option value="">Choose a Category</option>
@@ -170,6 +204,23 @@ export default function Home() {
             ))}
           </select>
         </div>
+
+        {selectedCategory && (
+          <div className="subcategory-filter-wrapper">
+            <select
+              className="wood-category-select"
+              value={selectedSubcategory}
+              onChange={(e) => setSelectedSubcategory(e.target.value)}
+              aria-label="Filter by subcategory"
+              disabled={availableSubcategories.length === 0}
+            >
+              <option value="">Choose a Subcategory</option>
+              {availableSubcategories.map((subcategory) => (
+                <option key={subcategory} value={subcategory}>{subcategory}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="sort-filter-wrapper">
           <select
