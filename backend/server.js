@@ -63,12 +63,12 @@ const corsOptions = {
       normalizedOrigin.startsWith("http://127.0.0.1") ||
       allowedOrigins.has(normalizedOrigin)
     ) {
-      return callback(null, normalizedOrigin);
+      return callback(null, true);
     }
 
     // In development, also allow the LAN IP (React's network URL)
     if (process.env.NODE_ENV !== "production") {
-      return callback(null, normalizedOrigin);
+      return callback(null, true);
     }
 
     callback(new Error("Not allowed by CORS"));
