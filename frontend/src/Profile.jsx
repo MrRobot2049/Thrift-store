@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import NavBar from "./NavBar";
 import { Link } from "react-router-dom";
 import "./profile.css";
-
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
+import { API_BASE_URL } from "./apiConfig";
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);

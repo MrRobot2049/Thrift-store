@@ -2,8 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import NavBar from "./NavBar";
 import "./adminVerification.css";
-
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "/api";
+import { API_BASE_URL } from "./apiConfig";
 
 const REASON_LABELS = {
   spam: "Spam",

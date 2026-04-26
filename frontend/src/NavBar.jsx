@@ -2,9 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { fetchWishlistSubscriptions, subscribeToWishlist } from "./wishlistStorage";
 import "./navbar.css";
-
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
+import { API_BASE_URL } from "./apiConfig";
 
 const NOTIFICATION_POLL_INTERVAL_MS = 30000;
 
@@ -138,7 +136,7 @@ export default function NavBar() {
 
   const logout = async () => {
     try {
-      await fetch("http://localhost:5000/api/auth/logout", {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
         method: "POST",
         credentials: "include",
       });

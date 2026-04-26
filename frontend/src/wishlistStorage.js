@@ -1,7 +1,5 @@
+import { API_BASE_URL } from "./apiConfig";
 const WISHLIST_EVENT = "wishlist-updated";
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
-
 function notifyWishlistChanged(subscriptions) {
   if (typeof window !== "undefined") {
     window.dispatchEvent(

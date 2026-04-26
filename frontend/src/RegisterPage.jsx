@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./register.css";
-
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "/api";
+import { API_BASE_URL } from "./apiConfig";
 
 export default function RegisterPage() {
   const navigate = useNavigate();

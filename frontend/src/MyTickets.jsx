@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import NavBar from "./NavBar";
 import "./myTickets.css";
 import { apiFetch } from "./forms/apiFetch";
+import { API_BASE_URL } from "./apiConfig";
 
-const API_BASE_URL = "/api";
 const TYPE_ICONS = { merchandise: "🛍️", comedy: "🎤", event: "🎟️", concert: "🎸" };
 
 export default function MyTickets() {

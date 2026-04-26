@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import NavBar from "./NavBar";
 import "./itemDetail.css";
+import { API_BASE_URL } from "./apiConfig";
 
-const API_BASE_URL = "/api";
 const NON_AUCTION_TYPES = ["merchandise", "comedy", "event", "concert"];
 const TYPE_ICONS = { merchandise: "🛍️", comedy: "🎤", event: "👥", concert: "🎸" };
 const REPORT_REASON_OPTIONS = [

@@ -3,9 +3,7 @@ import { Link } from "react-router-dom";
 import NavBar from "./NavBar";
 import { fetchWishlistSubscriptions, subscribeToWishlist } from "./wishlistStorage";
 import "./home.css";
-
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
+import { API_BASE_URL } from "./apiConfig";
 
 export default function Home() {
   const [items, setItems] = useState([]);

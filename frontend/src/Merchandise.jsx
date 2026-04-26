@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NavBar from "./NavBar";
 import "./merchandise.css";
+import { API_BASE_URL } from "./apiConfig";
 
-const API_BASE_URL = "/api";
 
 const TYPE_LABELS = {
   merchandise: "Merch",

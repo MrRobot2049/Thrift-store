@@ -9,7 +9,7 @@ export async function apiFetch(url, options = {}) {
     res = await fetch(url, options);
   } catch (networkErr) {
     throw new Error(
-      "Could not reach the server. Make sure the backend is running on port 5000."
+      "Could not reach the backend server. Please try again in a moment."
     );
   }
 
