@@ -35,8 +35,11 @@ const defaultDevOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
 ];
+const defaultProdOrigins = [
+  "https://thrift-store-ruby.vercel.app",
+];
 const allowedOrigins = new Set(
-  [...defaultDevOrigins, process.env.FRONTEND_URL]
+  [...defaultDevOrigins, ...defaultProdOrigins, process.env.FRONTEND_URL]
     .filter(Boolean)
     .map(normalizeOrigin)
 );
