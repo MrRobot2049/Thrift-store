@@ -40,7 +40,9 @@ export default function Home() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const itemsRes = await fetch(`${API_BASE_URL}/items`);
+        const itemsRes = await fetch(`${API_BASE_URL}/items`, {
+          credentials: "include",
+        });
         if (!itemsRes.ok) throw new Error("Failed to load items");
 
         const itemsData = await itemsRes.json();

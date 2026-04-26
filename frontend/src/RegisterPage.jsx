@@ -65,6 +65,7 @@ export default function RegisterPage() {
         setLoading(true);
         const response = await fetch(`${API_BASE_URL}/auth/register/request-otp`, {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: form.name,
@@ -99,6 +100,7 @@ export default function RegisterPage() {
       setLoading(true);
       const response = await fetch(`${API_BASE_URL}/auth/register/verify-otp`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: form.email,

@@ -23,7 +23,9 @@ export default function AuctionDetail() {
 
   const fetchAuction = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/auctions/${id}`);
+      const res = await fetch(`${API_BASE_URL}/auctions/${id}`, {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Failed to load auction");
       const data = await res.json();
       setAuction(data);
@@ -45,6 +47,7 @@ export default function AuctionDetail() {
       setMessage("");
       const res = await fetch(`${API_BASE_URL}/bids`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
           Authorization: token,

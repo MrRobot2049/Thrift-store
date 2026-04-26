@@ -45,7 +45,9 @@ export default function Merchandise() {
           activeFilter === "all"
             ? `${API_BASE_URL}/items/merchandise`
             : `${API_BASE_URL}/items/merchandise?type=${activeFilter}`;
-        const res = await fetch(url);
+        const res = await fetch(url, {
+          credentials: "include",
+        });
         if (!res.ok) throw new Error("Failed to load merchandise");
         const data = await res.json();
         setItems(data);

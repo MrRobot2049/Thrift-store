@@ -25,6 +25,8 @@ const registerChatSocket = require("./socket/chatSocket");
 const app = express();
 const server = http.createServer(app);
 
+app.set("trust proxy", 1);
+
 // Connect to DB
 connectDB();
 
@@ -87,7 +89,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     secure: process.env.NODE_ENV === "production",
     maxAge: 60 * 60 * 1000, // 1 hour
   },

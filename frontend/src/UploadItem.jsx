@@ -114,6 +114,7 @@ export default function UploadItem() {
       const token = localStorage.getItem("token");
       const itemResponse = await fetch(`${API_BASE_URL}/items`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
           Authorization: token,

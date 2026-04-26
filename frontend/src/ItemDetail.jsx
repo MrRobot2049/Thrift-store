@@ -57,7 +57,7 @@ export default function ItemDetail() {
   const currentUserId = currentUser.id || currentUser._id || "";
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/items/${id}`)
+    fetch(`${API_BASE_URL}/items/${id}`, { credentials: "include" })
       .then(r => r.json()).then(setItem).catch(err => setError(err.message));
   }, [id]);
 

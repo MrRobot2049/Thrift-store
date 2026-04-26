@@ -6,7 +6,10 @@
 export async function apiFetch(url, options = {}) {
   let res;
   try {
-    res = await fetch(url, options);
+    res = await fetch(url, {
+      credentials: "include",
+      ...options,
+    });
   } catch (networkErr) {
     throw new Error(
       "Could not reach the backend server. Please try again in a moment."
