@@ -27,17 +27,17 @@ app.set("trust proxy", 1);
 
 connectDB();
 
-const corsOptions = {
-  origin: [
-    "http://localhost:3000",
-    "https://thrift-store-ruby.vercel.app",
-  ],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-};
+const allowedCorsOrigins = [
+  "http://localhost:3000",
+  "https://thrift-store-ruby.vercel.app",
+];
 
-app.use(cors(corsOptions));
-app.options(/.*/, cors(corsOptions));
+app.use(cors({
+  origin: allowedCorsOrigins,
+  credentials: true,
+}));
+
+app.options("/{*splat}", cors());
 
 app.use(session({
   secret: process.env.SESSION_SECRET || "your-secret-key",
@@ -85,7 +85,7 @@ const PORT = process.env.PORT;
 
 const io = new Server(server, {
   cors: {
-    origin: corsOptions.origin,
+    origin: allowedCorsOrigins,
     credentials: true,
     methods: ["GET", "POST"],
   },

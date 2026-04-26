@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./login.css";
-import { API_BASE_URL } from "./apiConfig";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -16,7 +15,7 @@ export default function LoginPage() {
 
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const response = await fetch("https://thrift-store-5u43.onrender.com/api/auth/login", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
