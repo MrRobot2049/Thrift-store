@@ -81,7 +81,7 @@ app.use((err, req, res, next) => {
   res.status(status).json({ message: err.message || "Internal server error" });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 const io = new Server(server, {
   cors: {
@@ -93,6 +93,8 @@ const io = new Server(server, {
 
 setIO(io);
 registerChatSocket(io);
+
+console.log("ENV PORT:", process.env.PORT);
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
