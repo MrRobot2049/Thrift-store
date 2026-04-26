@@ -66,12 +66,9 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    // In development, also allow the LAN IP (React's network URL)
-    if (process.env.NODE_ENV !== "production") {
-      return callback(null, true);
-    }
+    console.warn("Blocked by CORS:", normalizedOrigin);
+    return callback(null, false);
 
-    callback(new Error("Not allowed by CORS"));
   },
   optionsSuccessStatus: 204,
 };
