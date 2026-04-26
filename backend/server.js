@@ -17,6 +17,7 @@ const userRoutes = require("./routes/userRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const purchaseRoutes = require("./routes/purchaseRoutes");
+const reportRoutes = require("./routes/reportRoutes");
 const { closeExpiredAuctions } = require("./controllers/auctionController");
 const { setIO } = require("./utils/socket");
 const registerChatSocket = require("./socket/chatSocket");
@@ -107,6 +108,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/purchases", purchaseRoutes);
+app.use("/api/reports", reportRoutes);
 
 // Test Route
 app.get("/", (req, res) => {

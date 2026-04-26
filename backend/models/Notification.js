@@ -16,9 +16,13 @@ const notificationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Item",
     },
+    report: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Report",
+    },
     type: {
       type: String,
-      enum: ["auction_won", "subcategory_listing"],
+      enum: ["auction_won", "subcategory_listing", "listing_report", "listing_removed"],
       required: true,
     },
     message: {

@@ -21,6 +21,7 @@ import EventForm from "./forms/EventForm";
 import ConcertForm from "./forms/ConcertForm";
 import MyTickets from "./MyTickets";
 import AdminRoute from "./AdminRoute";
+import AdminVerification from "./AdminVerification";
 
 function Dashboard() {
   const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -58,6 +59,7 @@ function App() {
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/merchandise" element={<Merchandise />} />
         <Route path="/sell-hub" element={<AdminRoute><SellHub /></AdminRoute>} />
+        <Route path="/admin/verification" element={<AdminRoute><AdminVerification /></AdminRoute>} />
         <Route path="/sell/merchandise" element={<AdminRoute><MerchandiseForm /></AdminRoute>} />
         <Route path="/sell/comedy" element={<AdminRoute><ComedyForm /></AdminRoute>} />
         <Route path="/sell/event" element={<AdminRoute><EventForm /></AdminRoute>} />

@@ -6,6 +6,11 @@ import "./itemDetail.css";
 const API_BASE_URL = "/api";
 const NON_AUCTION_TYPES = ["merchandise", "comedy", "event", "concert"];
 const TYPE_ICONS = { merchandise: "🛍️", comedy: "🎤", event: "👥", concert: "🎸" };
+const REPORT_REASON_OPTIONS = [
+  { value: "spam", label: "Spam" },
+  { value: "inappropriate_content", label: "Inappropriate Content" },
+  { value: "inaccurate_listing", label: "Inaccurate Listing" },
+];
 
 function TimeRemaining({ endTime }) {
   const [remaining, setRemaining] = useState("");
@@ -40,6 +45,12 @@ export default function ItemDetail() {
   const [itemBuyers, setItemBuyers] = useState([]);
   const [buyersLoading, setBuyersLoading] = useState(false);
   const [buyersError, setBuyersError] = useState("");
+  const [showReportBox, setShowReportBox] = useState(false);
+  const [reportReason, setReportReason] = useState("spam");
+  const [reportDetails, setReportDetails] = useState("");
+  const [reportSubmitting, setReportSubmitting] = useState(false);
+  const [reportError, setReportError] = useState("");
+  const [reportSuccess, setReportSuccess] = useState("");
 
   const token = localStorage.getItem("token");
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -211,6 +222,46 @@ export default function ItemDetail() {
   };
   const outOfStock = computeOutOfStock();
 
+  const submitReport = async () => {
+    if (!token) {
+      setReportError("Please log in to report this listing.");
+      return;
+    }
+
+    try {
+      setReportSubmitting(true);
+      setReportError("");
+      setReportSuccess("");
+
+      const response = await fetch(`${API_BASE_URL}/reports`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({
+          itemId: id,
+          reason: reportReason,
+          details: reportDetails,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to submit report");
+      }
+
+      setReportSuccess("Report submitted. Admin will review this listing.");
+      setReportDetails("");
+      setShowReportBox(false);
+    } catch (err) {
+      setReportError(err.message || "Failed to submit report");
+    } finally {
+      setReportSubmitting(false);
+    }
+  };
+
   // Stock label for the strip
   const stockLabel = () => {
     if (item.listingType === "merchandise" && item.sizeInventory?.length > 0) {
@@ -299,6 +350,61 @@ export default function ItemDetail() {
                       <p className="description-label">Description</p>
                       <p className="description-text">{item.description}</p>
                     </div>
+
+                    {!isOwnItem && (
+                      <div className="report-box">
+                        <div className="report-box-header">
+                          <button
+                            type="button"
+                            className="report-toggle-btn"
+                            onClick={() => {
+                              setShowReportBox((prev) => !prev);
+                              setReportError("");
+                              setReportSuccess("");
+                            }}
+                          >
+                            {showReportBox ? "Cancel Report" : "Report Listing"}
+                          </button>
+                        </div>
+
+                        {reportError && <p className="report-error">{reportError}</p>}
+                        {reportSuccess && <p className="report-success">{reportSuccess}</p>}
+
+                        {showReportBox && (
+                          <div className="report-form-wrap">
+                            <label>Reason</label>
+                            <select
+                              className="vintage-input"
+                              value={reportReason}
+                              onChange={(e) => setReportReason(e.target.value)}
+                            >
+                              {REPORT_REASON_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                              ))}
+                            </select>
+
+                            <label style={{ marginTop: "0.45rem" }}>Extra details (optional)</label>
+                            <textarea
+                              className="vintage-input report-textarea"
+                              placeholder="Add any context for the admin review"
+                              value={reportDetails}
+                              onChange={(e) => setReportDetails(e.target.value)}
+                              maxLength={1000}
+                            />
+
+                            <button
+                              type="button"
+                              className="vintage-btn"
+                              onClick={submitReport}
+                              disabled={reportSubmitting}
+                              style={{ marginTop: "0.6rem" }}
+                            >
+                              {reportSubmitting ? "Submitting..." : "Submit Report"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {/* ── Buy / Register Panel ── */}
                     {!isOwnItem && (
@@ -492,6 +598,61 @@ export default function ItemDetail() {
                       <p className="description-label">Description</p>
                       <p className="description-text">{item.description}</p>
                     </div>
+
+                    {!isOwnItem && (
+                      <div className="report-box">
+                        <div className="report-box-header">
+                          <button
+                            type="button"
+                            className="report-toggle-btn"
+                            onClick={() => {
+                              setShowReportBox((prev) => !prev);
+                              setReportError("");
+                              setReportSuccess("");
+                            }}
+                          >
+                            {showReportBox ? "Cancel Report" : "Report Listing"}
+                          </button>
+                        </div>
+
+                        {reportError && <p className="report-error">{reportError}</p>}
+                        {reportSuccess && <p className="report-success">{reportSuccess}</p>}
+
+                        {showReportBox && (
+                          <div className="report-form-wrap">
+                            <label>Reason</label>
+                            <select
+                              className="vintage-input"
+                              value={reportReason}
+                              onChange={(e) => setReportReason(e.target.value)}
+                            >
+                              {REPORT_REASON_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                              ))}
+                            </select>
+
+                            <label style={{ marginTop: "0.45rem" }}>Extra details (optional)</label>
+                            <textarea
+                              className="vintage-input report-textarea"
+                              placeholder="Add any context for the admin review"
+                              value={reportDetails}
+                              onChange={(e) => setReportDetails(e.target.value)}
+                              maxLength={1000}
+                            />
+
+                            <button
+                              type="button"
+                              className="vintage-btn"
+                              onClick={submitReport}
+                              disabled={reportSubmitting}
+                              style={{ marginTop: "0.6rem" }}
+                            >
+                              {reportSubmitting ? "Submitting..." : "Submit Report"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     {!isOwnItem && !auctionEnded && (
                       isHighestBidder ? (
                         <div className="highest-bidder-notice">

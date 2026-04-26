@@ -11,6 +11,7 @@ const NOTIFICATION_POLL_INTERVAL_MS = 30000;
 export default function NavBar() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const isAdmin = (user.role || "user") === "admin";
   const [notifications, setNotifications] = useState([]);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const notificationRef = useRef(null);
@@ -215,6 +216,16 @@ export default function NavBar() {
               Profile
             </NavLink>
           </li>
+          {isAdmin && (
+            <li className="nav-item">
+              <NavLink
+                to="/admin/verification"
+                className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}
+              >
+                Verification
+              </NavLink>
+            </li>
+          )}
           {user?.name && (
             <li className="nav-item nav-user">
               Hi, {user.name.split(" ")[0]}
@@ -257,7 +268,9 @@ export default function NavBar() {
                       <li key={entry._id} className="notification-item">
                         <Link
                           to={
-                            entry.auction?._id
+                            entry.type === "listing_report"
+                              ? "/admin/verification"
+                              : entry.auction?._id
                               ? `/chat/${entry.auction._id}`
                               : entry.item?._id
                               ? `/items/${entry.item._id}`
@@ -268,7 +281,7 @@ export default function NavBar() {
                         >
                           <span className="notification-title">{entry.message || "Notification"}</span>
                           <span className="notification-meta">
-                            {entry.item?.title || "Auction update"} • {formatTimeAgo(entry.createdAt)}
+                            {entry.item?.title || (entry.type === "listing_removed" ? "Account update" : "Auction update")} • {formatTimeAgo(entry.createdAt)}
                           </span>
                         </Link>
                       </li>

@@ -378,6 +378,60 @@
 .form-msg.error { color: #d32f2f; }
 .form-msg.success { color: #388e3c; }
 
+.report-box {
+  margin-top: 0.75rem;
+  border: 1px solid #dec7a8;
+  background: #fff8ef;
+  border-radius: 8px;
+  padding: 0.65rem 0.75rem;
+}
+
+.report-box-header {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.report-toggle-btn {
+  border: 1px solid #9b7a46;
+  background: #f7ead4;
+  color: #5c452e;
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.report-form-wrap {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.report-form-wrap label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #6f5737;
+}
+
+.report-textarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+.report-error {
+  color: #b03a2e;
+  margin: 0.45rem 0 0;
+  font-size: 0.8rem;
+}
+
+.report-success {
+  color: #2f7b41;
+  margin: 0.45rem 0 0;
+  font-size: 0.8rem;
+}
+
 /* Status Notices */
 .status-notice {
   padding: 15px;

@@ -2,6 +2,7 @@ const User = require("../models/User");
 const Item = require("../models/Item");
 const Auction = require("../models/Auction");
 const Bid = require("../models/Bid");
+const mongoose = require("mongoose");
 
 const normalizeSubscriptionPayload = (payload = {}) => ({
   categoryId: String(payload.categoryId || "").trim(),
@@ -17,10 +18,18 @@ const isSameSubscription = (left, right) =>
   left.subcategorySlug === right.subcategorySlug &&
   (left.nestedSubcategorySlug || "") === (right.nestedSubcategorySlug || "");
 
+const resolveUserId = (req) => {
+  const raw = req?.user?.id;
+  return mongoose.Types.ObjectId.isValid(raw) ? String(raw) : "";
+};
+
 // return items the user is selling and auctions they have won
 exports.getMyProfile = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = resolveUserId(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
     
     // Get user info
     const user = await User.findById(userId).select("-password");
@@ -63,7 +72,10 @@ exports.getMyProfile = async (req, res) => {
 // return bids placed by user (can be used to show purchases)
 exports.getMyBids = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = resolveUserId(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
     const bids = await Bid.find({ bidder: userId })
       .populate({
         path: "auction",
@@ -79,7 +91,10 @@ exports.getMyBids = async (req, res) => {
 // items only
 exports.getMyItems = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = resolveUserId(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
     const items = await Item.find({ seller: userId });
     res.json(items);
   } catch (err) {
@@ -90,7 +105,12 @@ exports.getMyItems = async (req, res) => {
 
 exports.getMyWishlistSubscriptions = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("wishlistSubscriptions");
+    const userId = resolveUserId(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const user = await User.findById(userId).select("wishlistSubscriptions");
     res.json(user?.wishlistSubscriptions || []);
   } catch (err) {
     console.error(err);
@@ -100,6 +120,11 @@ exports.getMyWishlistSubscriptions = async (req, res) => {
 
 exports.addWishlistSubscription = async (req, res) => {
   try {
+    const userId = resolveUserId(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const subscription = normalizeSubscriptionPayload(req.body);
 
     if (
@@ -111,7 +136,7 @@ exports.addWishlistSubscription = async (req, res) => {
       return res.status(400).json({ message: "Category and subcategory are required" });
     }
 
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -134,9 +159,14 @@ exports.addWishlistSubscription = async (req, res) => {
 
 exports.removeWishlistSubscription = async (req, res) => {
   try {
+    const userId = resolveUserId(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const subscription = normalizeSubscriptionPayload(req.body);
 
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
