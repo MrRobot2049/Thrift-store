@@ -6,8 +6,8 @@ const { sendMail } = require("./email");
  * @param {object} purchase - purchase document
  */
 async function sendTicketEmail(toEmail, purchase) {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.warn("EMAIL_USER / EMAIL_PASS not set — skipping ticket email.");
+  if (!process.env.EMAIL_API_KEY || !(process.env.EMAIL_PROXY_URL || process.env.FRONTEND_URL)) {
+    console.warn("EMAIL_API_KEY or proxy URL not set — skipping ticket email.");
     return;
   }
 

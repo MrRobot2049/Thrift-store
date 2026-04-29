@@ -1,28 +1,45 @@
-const nodemailer = require("nodemailer");
+function resolveProxyUrl() {
+  const baseUrl = (process.env.EMAIL_PROXY_URL || process.env.FRONTEND_URL || "").replace(/\/$/, "");
 
-function createTransporter() {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    throw new Error("Email credentials are missing in environment variables.");
+  if (!baseUrl) {
+    throw new Error("EMAIL_PROXY_URL or FRONTEND_URL is missing in environment variables.");
   }
 
-  return nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE || "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+  return `${baseUrl}/api/send-email`;
+}
+
+function resolveApiKey() {
+  if (!process.env.EMAIL_API_KEY) {
+    throw new Error("EMAIL_API_KEY is missing in environment variables.");
+  }
+
+  return process.env.EMAIL_API_KEY;
 }
 
 async function sendMail(options) {
-  const transporter = createTransporter();
-  return transporter.sendMail({
-    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-    ...options,
+  const response = await fetch(resolveProxyUrl(), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": resolveApiKey(),
+    },
+    body: JSON.stringify({
+      to: options.to,
+      subject: options.subject,
+      text: options.text,
+      html: options.html,
+      from: options.from,
+    }),
   });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || "Email proxy request failed.");
+  }
+
+  return response.json().catch(() => ({}));
 }
 
 module.exports = {
-  createTransporter,
   sendMail,
 };
