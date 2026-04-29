@@ -10,7 +10,16 @@ export const categoriesData = {
     subcategories: [
       {
         name: "Engineering Books",
-        subcategories: ["1st Year", "2nd Year", "3rd Year", "4th Year"],
+        subcategories: [
+          "Mathematics",
+          "Computer Science",
+          "Physics",
+          "Chemistry",
+          "Civil",
+          "Mechanical",
+          "Electrical",
+          "Others",
+        ],
       },
       "Semester Textbooks",
       "Competitive Exam Books",

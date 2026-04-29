@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import NavBar from "./NavBar";
 import { fetchWishlistSubscriptions, subscribeToWishlist } from "./wishlistStorage";
+import { categoriesData } from "./data/categories";
+import { getNestedSubcategories, getSubcategoryName } from "./categoryHelpers";
 import "./home.css";
 import { API_BASE_URL } from "./apiConfig";
 
@@ -24,18 +26,7 @@ export default function Home() {
     }).format(value);
   };
 
-  const CATEGORIES = [
-    "Books",
-    "Cycles",
-    "Heaters",
-    "Furniture",
-    "Hostel Essentials",
-    "Electronics",
-    "Kitchen Items",
-    "Clothing",
-    "Bags",
-    "Others",
-  ];
+  const CATEGORIES = Object.keys(categoriesData);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -85,22 +76,40 @@ export default function Home() {
   }, []);
 
   const availableSubcategories = useMemo(() => {
-    const scopedItems = selectedCategory
-      ? items.filter(
-          (item) => item.category?.toLowerCase() === selectedCategory.toLowerCase()
-        )
-      : items;
+    if (!selectedCategory) {
+      return [];
+    }
 
     const subcategorySet = new Set();
+    const category = categoriesData[selectedCategory];
 
-    scopedItems.forEach((item) => {
-      if (item.subcategory) {
-        subcategorySet.add(item.subcategory.trim());
-      }
-      if (item.nestedSubcategory) {
-        subcategorySet.add(item.nestedSubcategory.trim());
-      }
-    });
+    if (category?.subcategories?.length) {
+      category.subcategories.forEach((subcategory) => {
+        const subName = getSubcategoryName(subcategory);
+        if (subName) {
+          subcategorySet.add(subName);
+        }
+
+        getNestedSubcategories(subcategory).forEach((nested) => {
+          if (nested) {
+            subcategorySet.add(nested);
+          }
+        });
+      });
+    } else {
+      const scopedItems = items.filter(
+        (item) => item.category?.toLowerCase() === selectedCategory.toLowerCase()
+      );
+
+      scopedItems.forEach((item) => {
+        if (item.subcategory) {
+          subcategorySet.add(item.subcategory.trim());
+        }
+        if (item.nestedSubcategory) {
+          subcategorySet.add(item.nestedSubcategory.trim());
+        }
+      });
+    }
 
     return Array.from(subcategorySet).sort((left, right) => left.localeCompare(right));
   }, [items, selectedCategory]);
