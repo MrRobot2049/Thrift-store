@@ -3,6 +3,8 @@ const User = require("../models/User");
 const { getIO } = require("../utils/socket");
 const { sendMail } = require("../utils/email");
 
+const DEFAULT_FRONTEND_URL = "https://thrift-store-ruby.vercel.app";
+
 function doesSubscriptionMatchItem(subscription, item) {
   if (!subscription || !item) {
     return false;
@@ -29,7 +31,7 @@ function buildItemPathLabel(item) {
 }
 
 function buildItemUrl(itemId) {
-  const baseUrl = (process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/$/, "");
+  const baseUrl = (process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL).replace(/\/$/, "");
   return `${baseUrl}/items/${itemId}`;
 }
 
