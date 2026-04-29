@@ -1,12 +1,4 @@
-const nodemailer = require("nodemailer");
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS, // Gmail App Password
-  },
-});
+const { sendMail } = require("./email");
 
 /**
  * Send a styled ticket confirmation email.
@@ -14,8 +6,8 @@ const transporter = nodemailer.createTransport({
  * @param {object} purchase - purchase document
  */
 async function sendTicketEmail(toEmail, purchase) {
-  if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
-    console.warn("⚠️  MAIL_USER / MAIL_PASS not set — skipping email.");
+  if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
+    console.warn("RESEND_API_KEY / EMAIL_FROM not set — skipping ticket email.");
     return;
   }
 
@@ -57,8 +49,7 @@ async function sendTicketEmail(toEmail, purchase) {
     </p>
   </div>`;
 
-  await transporter.sendMail({
-    from: `"Thrift Store Tickets" <${process.env.MAIL_USER}>`,
+  await sendMail({
     to: toEmail,
     subject: `✅ Booking Confirmed — ${purchase.itemTitle} [${purchase.ticketId}]`,
     html,
