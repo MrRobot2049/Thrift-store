@@ -210,6 +210,8 @@ export default function RegisterPage() {
                 <option value="BTech">BTech</option>
                 <option value="MTech">MTech</option>
                 <option value="MSc">MSc</option>
+                <option value="PhD">PhD</option>
+                <option value="Others">Others</option>
               </select>
             </div>
 
