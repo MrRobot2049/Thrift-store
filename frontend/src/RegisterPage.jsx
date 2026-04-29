@@ -23,8 +23,47 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === "stream") {
+      setForm((prev) => ({
+        ...prev,
+        stream: value,
+        year: value === "Others" ? "N/A" : "",
+      }));
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
+
+  const yearOptions = (() => {
+    switch (form.stream) {
+      case "MTech":
+      case "MSc":
+        return [
+          { value: "1", label: "1st Year" },
+          { value: "2", label: "2nd Year" },
+        ];
+      case "PhD":
+        return [
+          { value: "1", label: "1st Year" },
+          { value: "2", label: "2nd Year" },
+          { value: "3", label: "3rd Year" },
+          { value: "4", label: "4th Year" },
+          { value: "5", label: "5th Year" },
+        ];
+      case "Others":
+        return [{ value: "N/A", label: "N/A" }];
+      default:
+        return [
+          { value: "1", label: "1st Year" },
+          { value: "2", label: "2nd Year" },
+          { value: "3", label: "3rd Year" },
+          { value: "4", label: "4th Year" },
+        ];
+    }
+  })();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -220,14 +259,15 @@ export default function RegisterPage() {
                 name="year"
                 value={form.year}
                 onChange={handleChange}
-                disabled={otpSent}
+                disabled={otpSent || form.stream === "Others"}
                 className="form-select"
               >
                 <option value="">Year</option>
-                <option value="1">1st Year</option>
-                <option value="2">2nd Year</option>
-                <option value="3">3rd Year</option>
-                <option value="4">4th Year</option>
+                {yearOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
